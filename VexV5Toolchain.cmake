@@ -267,10 +267,6 @@ endif()
 
 set(VEX_COMPILER_PATH "${VEX_TOOLCHAIN_PATH}/bin")
 
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_CXX_COMPILER_WORKS 1)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
 set(CMAKE_SYSTEM_NAME               Generic)
 set(CMAKE_SYSTEM_PROCESSOR          arm)
 
@@ -286,13 +282,11 @@ set(CMAKE_OBJDUMP                   ${VEX_COMPILER_PATH}/llvm-objdump${EXE_SUFFI
 set(CMAKE_SIZE                      ${VEX_COMPILER_PATH}/llvm-size${EXE_SUFFIX})
 
 # use the vex linker script
-set(CMAKE_C_LINK_EXECUTABLE  "<CMAKE_LINKER> -z norelro -T \"${VEX_SDK_PATH}/lscript1.ld\"  --gc-sections -L\"${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/lib\" <OBJECTS> -o <TARGET> --start-group -lc++ -lc -lm -lclang_rt.builtins --end-group")
+set(CMAKE_C_LINK_EXECUTABLE  "<CMAKE_LINKER> -z norelro -T \"${VEX_SDK_PATH}/lscript1.ld\"  --gc-sections -L\"${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/arm-none-eabi/armv7a_hard_vfpv3_d16_unaligned/lib\" <OBJECTS> -o <TARGET> --start-group -lc++ -lc -lm -lclang_rt.builtins --end-group")
 set(CMAKE_CXX_LINK_EXECUTABLE ${CMAKE_C_LINK_EXECUTABLE})
 
-add_compile_options(-DVexV5)
-
 set(CFLAGS_CL "-target thumbv7-none-eabi -fshort-enums -Wno-unknown-attributes --config=OmaxLTO.cfg  -U__ARM_NEON__ -U__ARM_NEON")
-set(CFLAGS_V7 "-march=armv7-a -mfpu=neon -mfloat-abi=softfp")
+set(CFLAGS_V7 "-march=armv7-a -mfpu=neon -mfloat-abi=hard")
 
 if(VEX_QUIET_BUILD)
     set(WARNING_FLAGS "-w")  # suppress all warnings
@@ -300,19 +294,15 @@ else()
     set(WARNING_FLAGS "-Wall -Werror=return-type")  # enable all warnings
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+
 set(CMAKE_C_FLAGS                   "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -ansi -std=c23")
 set(CMAKE_CXX_FLAGS                 "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -fno-rtti -fno-threadsafe-statics -fno-exceptions -std=c++23 -ffunction-sections -fdata-sections" CACHE INTERNAL "")
 
-set(CMAKE_C_FLAGS_DEBUG             "" CACHE INTERNAL "")
-set(CMAKE_C_FLAGS_RELEASE           "" CACHE INTERNAL "")
-set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_C_FLAGS_DEBUG}" CACHE INTERNAL "")
-set(CMAKE_CXX_FLAGS_RELEASE         "${CMAKE_C_FLAGS_RELEASE}" CACHE INTERNAL "")
-
-include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/include/c++/v1")
-include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/include")
+include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/arm-none-eabi/include/c++/v1")
+include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/arm-none-eabi/include")
 include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang/20/include")
-
-# include_directories(SYSTEM "${VEX_SDK_PATH}/include")
 
 function(vex_add_executable target_name)
     add_executable(${target_name})
