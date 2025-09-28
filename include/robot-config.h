@@ -25,7 +25,6 @@ extern OdometryTank odom;
 
 // ================ UTILS ================
 extern vex::controller con;
-extern PIDTuner tuner;
 
 void robot_init();
 

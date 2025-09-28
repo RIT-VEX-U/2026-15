@@ -63,47 +63,12 @@
 
     TankDrive drive_sys(left_motors, right_motors, robot_cfg, &odom);
 
-    VDB::Device dev1{vex::PORT11, 115200 * 2};
-
-    VDP::RegistryController registry_contoller{&dev1};
-    
-
-    PIDTuner tuner(drive_pid, drive_sys);
-
-    VDP::PartPtr tuner_data = (std::shared_ptr<VDP::TimestampedRecord>)new VDP::TimestampedRecord(
-    "tuner_record", new VDP::PIDTunerRecord("tuner_record", tuner));
-
-    VDP::PartPtr odom_data = (std::shared_ptr<VDP::TimestampedRecord>)new VDP::TimestampedRecord(
-    "odom_record", new VDP::OdometryDataRecord("odom_record", odom));
-
 void robot_init() {
     printf("STARTED\n");
-
-    VDP::ChannelID chan1 = registry_contoller.open_channel(tuner_data);
-    VDP::ChannelID chan2 = registry_contoller.open_channel(odom_data);
 
     odom.set_position({0,0,0});
     while(imu.isCalibrating()){
         vexDelay(10);
     }
-    printf("IMU Calibrated\n");
-
-    bool ready = registry_contoller.negotiate();
-
-    if (!ready) {
-        Brain.Screen.printAt(20, 20, "FAILED");
-        while (true) {
-            vexDelay(1000);
-        };
-    }
     Brain.Screen.printAt(20, 20, "STARTED");
-    printf("Negotiation Finished\n");
-    
-
-    while (true) {
-        printf("P: %f, I: %f, D: %f, Error: %f, Setpoint: %f, Enabled? %d, X: %f, Y: %f, ROT: %F\n", drive_pid.config.p, drive_pid.config.i, drive_pid.config.d, drive_pid.get_error(), tuner.GetSetpoint());
-        registry_contoller.send_data(chan1);
-        registry_contoller.send_data(chan2);
-        vexDelay(100);
-    }
 }
