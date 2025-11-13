@@ -1,4 +1,5 @@
 #include "core/subsystems/odometry/odometry_tank.h"
+#include <vex_units.h>
 
 /**
  * Initialize the Odometry module, calculating position from the drive motors.
@@ -127,7 +128,11 @@ Pose2d OdometryTank::update() {
         accel = (speed - last_speed) / tmr.time(sec);
 
         // Calculate robot angular velocity (deg/sec)
-        ang_speed_deg = smallest_angle(current_pos.rotation().degrees(), last_pos.rotation().degrees()) / tmr.time(sec);
+        if (imu == NULL || imu->installed() == false) {
+          ang_speed_deg = smallest_angle(current_pos.rotation().degrees(), last_pos.rotation().degrees()) / tmr.time(sec);
+        } else {
+          ang_speed_deg = -imu->gyroRate(vex::axisType::yaxis, vex::dps);
+        }
 
         // Calculate robot angular acceleration (deg/sec^2)
         ang_accel_deg = (ang_speed_deg - last_ang_speed) / tmr.time(sec);

@@ -13,7 +13,7 @@ extern vex::brain Brain;
 //MOTORS
 
 extern robot_specs_t robot_config;
-// extern OdometryTank odom;
+extern OdometryTank odom;
 extern TankDrive drive_sys; //define how robot moves
 extern IntakeSys intake_sys;
 // ================ INPUTS ================

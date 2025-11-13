@@ -3,6 +3,8 @@
 #include <v5_apiuser.h>
 #include <vex_triport.h>
 #include <vex_units.h>
+#include "core/subsystems/screen.h"
+#include "core/utils/controls/motion_controller.h"
 
 // VEX
 vex::controller con;
@@ -45,25 +47,45 @@ PID::pid_config_t drive_pid_cfg{
 
 PID drive_pid(drive_pid_cfg);
 
+std::vector<screen::Page *> pages;
+
+PID::pid_config_t turn_pid_cfg{
+  .p = 0.02692,
+  .i = 0.0,
+  .d = 0.0015,
+  .deadband = 3,
+  .on_target_time = 0.1,
+  .error_method = PID::LINEAR,
+};
+PID turn_pid(turn_pid_cfg);
+
 robot_specs_t robot_config = {
     .robot_radius = 10,
-    .odom_wheel_diam = 1.75,
-    .odom_gear_ratio = 0.75,
+    .odom_wheel_diam = 2.75,
+    .odom_gear_ratio = 1,
     .dist_between_wheels = 12.4,
     .drive_feedback = &drive_pid,
+    .turn_feedback = &turn_pid,
 };
 
-// OdometryTank odom(left_motors, right_motors, robot_config, &imu);
-TankDrive drive_sys(left_motors, right_motors, robot_config); // define how robot movesrobot
+OdometryTank odom(left_motors, right_motors, robot_config, &imu);
+TankDrive drive_sys(left_motors, right_motors, robot_config, &odom); // define how robot movesrobot
 
 IntakeSys intake_sys(toproller, bottomroller, intake_sensor, outtake_sensor);
 
 void robot_init() {
-  // imu.calibrate();
-  // while(imu.isCalibrating()){
-  //    vexDelay(10);
-  // }
-  Brain.Screen.printAt(20, 20, "bing");
+  imu.calibrate();
+  while(imu.isCalibrating()){
+     vexDelay(10);
+  }
+
+  pages = {
+    new screen::PIDPage(turn_pid, "turnpid"),
+  };
+
+  screen::start_screen(Brain.Screen, pages);
+
+  Brain.Screen.printAt(20, 20, "bingfr");
   printf("\n\n\nStarted\n\n\n");
   // odom.start();
   //.while (true) {
