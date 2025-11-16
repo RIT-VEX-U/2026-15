@@ -1,4 +1,5 @@
 #pragma once
+#include "core/utils/command_structure/auto_command.h"
 #include "vex.h"
 #include <vex_motor.h>
 #include <vex_optical.h>
@@ -7,7 +8,7 @@
 
 class IntakeSys {
 public:
-  IntakeSys(vex::motor top_roller, vex::motor bottom_roller, vex::optical intake_sensor, vex::optical outtake_sensor);
+  IntakeSys(vex::motor top_roller, vex::motor bottom_roller, vex::optical intake_sensor, vex::distance outtake_sensor);
   enum IntakeState {
     IN,
     SCORE,
@@ -38,6 +39,14 @@ public:
 
   static int thread_fn(void *tr);
 
+  AutoCommand * IntakeCmd();
+  AutoCommand * IntakeScoreCmd();
+  AutoCommand * OutakeCmd();
+  AutoCommand * IntakeUpCmd();
+  AutoCommand * IntakeDownCmd();
+  AutoCommand * MatchloaderUpCmd();
+  AutoCommand * MatchLoaderDownCmd();
+
 private:
   bool saw_block_in = false;
   bool saw_block_out = false;
@@ -47,7 +56,7 @@ private:
   vex::motor top_roller;
   vex::motor bottom_roller;
   vex::optical intake_sensor;
-  vex::optical outtake_sensor;
+  vex::distance outtake_sensor;
   vex::task task;
   double intake_volts;
   IntakeState intake_state;

@@ -30,18 +30,20 @@ vex::motor toproller(PORT12, vex::gearSetting::ratio6_1, false);
 vex::motor bottomroller(PORT13, vex::gearSetting::ratio6_1, false);
 
 vex::optical intake_sensor(PORT10);
-vex::optical outtake_sensor(PORT15);
+vex::distance outtake_sensor(PORT15);
+
 
 vex::digital_out intake_sol(Brain.ThreeWirePort.H);
-vex::digital_out match_loader_sol(Brain.ThreeWirePort.G);
+vex::digital_out match_loader_sol(Brain.ThreeWirePort.F);
+vex::digital_out doinker_sol(Brain.ThreeWirePort.G);
 
 vex::inertial imu(PORT1);
 
 PID::pid_config_t drive_pid_cfg{
-    .p = 0.6,
+    .p = 0.2,
     .i = 0,
-    .d = 0,
-    .deadband = 0.5,
+    .d = 0.018,
+    .deadband = 1.5,
     .on_target_time = 0.1,
 };
 
@@ -64,8 +66,10 @@ robot_specs_t robot_config = {
     .odom_wheel_diam = 2.75,
     .odom_gear_ratio = 1,
     .dist_between_wheels = 12.4,
+    .drive_correction_cutoff = 6,
     .drive_feedback = &drive_pid,
     .turn_feedback = &turn_pid,
+    .correction_pid = turn_pid_cfg,
 };
 
 OdometryTank odom(left_motors, right_motors, robot_config, &imu);
@@ -80,7 +84,9 @@ void robot_init() {
   }
 
   pages = {
-    new screen::PIDPage(turn_pid, "turnpid"),
+    // new screen::PIDPage(turn_pid, "turnpid"),
+    // new screen::OdometryPage(odom, 15, 15, true),
+    // new screen::PIDPage(drive_pid, "drivepid"),
   };
 
   screen::start_screen(Brain.Screen, pages);

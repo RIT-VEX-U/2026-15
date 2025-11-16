@@ -2,6 +2,7 @@
 #include "core/utils/command_structure/drive_commands.h"
 #include "core/utils/controls/pidff.h"
 #include "core/utils/geometry.h"
+#include "core/utils/math/geometry/rotation2d.h"
 #include "core/utils/math_util.h"
 
 TankDrive::TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryBase *odom)
@@ -443,6 +444,8 @@ bool TankDrive::drive_to_point(
     } else {
         drive_pid_rval = feedback.get();
     }
+
+    drive_pid_rval *= cos(deg2rad(delta_heading));
 
     // Combine the two pid outputs
     double lside = drive_pid_rval + correction;

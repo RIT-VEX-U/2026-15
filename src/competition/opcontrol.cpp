@@ -5,7 +5,7 @@
 
 void testing();
 bool enable_drive = true;
-bool tank_drive = true;
+bool tank_drive = false;
 
 
 
@@ -21,7 +21,7 @@ void opcontrol() {
     intake_sys.intake_score();
   });
   con.ButtonL1.pressed([](){
-;    intake_sys.outtake();
+    intake_sys.outtake(10);
   });
   con.ButtonY.pressed([](){
     intake_sol.set(!intake_sol.value());
@@ -30,16 +30,16 @@ void opcontrol() {
     match_loader_sol.set(!match_loader_sol.value());
   });
 
-  con.ButtonA.pressed([](){
-      CommandController cc{
-      
-      drive_sys.TurnDegreesCmd(120),
-      };
-      Brain.Screen.printAt(20, 20, "runned");
-      enable_drive = false;
-      cc.run();
-      enable_drive = true;
-  });
+  // con.ButtonA.pressed([](){
+  //     CommandController cc{
+  //       drive_sys.DriveForwardCmd(48, vex::fwd, 1),
+  //       // drive_sys.TurnDegreesCmd(120),
+  //     };
+  //     Brain.Screen.printAt(20, 20, "runned");
+  //     enable_drive = false;
+  //     cc.run();
+  //     enable_drive = true;
+  // });
   while(true){
     double left;
     double right;

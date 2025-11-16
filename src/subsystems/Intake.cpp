@@ -1,4 +1,5 @@
 #include "subsystems/Intake.h"
+#include "core/utils/command_structure/auto_command.h"
 #include "robot-config.h"
 #include "core/utils/formatting.h"
 
@@ -7,14 +8,12 @@
 #include <vex_optical.h>
 #include <vex_units.h>
 IntakeSys::IntakeSys(vex::motor top_roller, vex::motor bottom_roller,
-                     vex::optical intake_sensor, vex::optical outtake_sensor)
+                     vex::optical intake_sensor, vex::distance outtake_sensor)
     : top_roller(top_roller), bottom_roller(bottom_roller), intake_sensor(intake_sensor), outtake_sensor(outtake_sensor){
   task = vex::task(thread_fn, this);
 
   intake_sensor.setLightPower(100);
   intake_sensor.objectDetectThreshold(120);
-  
-  outtake_sensor.setLightPower(100);
 };
 
 void IntakeSys::intake(double volts) {
@@ -46,39 +45,53 @@ IntakeSys::BlockColor IntakeSys::get_block_color(vex::optical sensor){
   }
 }
 
-void IntakeSys::blockwatcher(){
-  bool seeing_block_in = intake_sensor.isNearObject();
-  bool seeing_block_out = outtake_sensor.isNearObject();
-  if((intake_state == IN || intake_state == SCORE) && (seeing_block_in == false && saw_block_in == true)){
-    current_blocks++;
-    // held_blocks.push_back(get_block_color(intake_sensor));
-    // printf("block went in! current blocks : %d\n", current_blocks);
-  }
-  else if((intake_state == OUT) && (seeing_block_in == false && saw_block_in == true)){
-    current_blocks--;
-    // if(held_blocks.size() < 1){
-    //   held_blocks_valid = false;
-    // } 
-    // else{
-    //   held_blocks.erase(held_blocks.begin());
-    // }
-    // printf("block went out! current blocks : %d\n", current_blocks);
-  }
-  if(intake_state == SCORE && (seeing_block_in == false && saw_block_in == true)){
-    current_blocks--;
-    // if(held_blocks.size() < 1){
-    //   held_blocks_valid = false;
-    // }
-    // else{
-    //  held_blocks.pop_back();
-    // }
-    // printf("block went out! current blocks : %d\n", current_blocks);
-  }
-  // if(held_blocks.size() > 8){
-  //   held_blocks_valid = false;
-  // }
-  saw_block_in = seeing_block_in;
-  saw_block_out = seeing_block_out;
+AutoCommand * IntakeSys::IntakeCmd() {
+  return new FunctionCommand([&]() {
+    this->intake();
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::IntakeScoreCmd() {
+  return new FunctionCommand([&]() {
+    this->intake_score();
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::OutakeCmd() {
+  return new FunctionCommand([&]() {
+    this->outtake(8);
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::IntakeUpCmd() {
+  return new FunctionCommand([&]() {
+    intake_sol.set(true);
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::IntakeDownCmd() {
+  return new FunctionCommand([&]() {
+    intake_sol.set(false);
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::MatchloaderUpCmd() {
+  return new FunctionCommand([&]() {
+    match_loader_sol.set(false);
+    return true;
+  });
+}
+
+AutoCommand * IntakeSys::MatchLoaderDownCmd() {
+  return new FunctionCommand([&]() {
+    match_loader_sol.set(true);
+    return true;
+  });
 }
 
 int IntakeSys::thread_fn(void *ptr) {
@@ -92,7 +105,7 @@ int IntakeSys::thread_fn(void *ptr) {
       // printf("not seeing object\n");
     }
     if (self.intake_state == IntakeState::IN) {
-      if (self.outtake_sensor.isNearObject()) {
+      if (self.outtake_sensor.objectDistance(vex::distanceUnits::mm) < 30) {
         self.top_roller.stop();
       } else {
         self.top_roller.spin(vex::forward, self.intake_volts, vex::volt);
@@ -109,7 +122,6 @@ int IntakeSys::thread_fn(void *ptr) {
       self.bottom_roller.stop();
     }
     // if(self.held_blocks_valid){
-    self.blockwatcher();
     // }
     // else if(!printed_blocks_invalid){
     //   printf("Error: held blocks are invalid\n");
