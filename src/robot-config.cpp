@@ -1,5 +1,6 @@
 #include "robot-config.h"
 #include <cstdio>
+#include <string>
 #include <v5_apiuser.h>
 #include <vex_triport.h>
 #include <vex_units.h>
@@ -28,6 +29,21 @@ vex::motor_group right_motors(right1, right2, right3, right4, right5);
 
 vex::motor toproller(PORT12, vex::gearSetting::ratio6_1, false);
 vex::motor bottomroller(PORT13, vex::gearSetting::ratio6_1, false);
+
+std::map<std::string, vex::motor&> motor_names {
+  {"left 1", left1},
+  {"left 2", left2},
+  {"left 3", left3},
+  {"left 4", left4},
+
+  {"right 1", right1},
+  {"right 2", right2},
+  {"right 3", right3},
+  {"right 4", right4},
+
+  {"toproller", toproller},
+  {"bottomroller", bottomroller}
+};
 
 vex::optical intake_sensor(PORT10);
 vex::distance outtake_sensor(PORT15);
@@ -87,6 +103,7 @@ void robot_init() {
     // new screen::PIDPage(turn_pid, "turnpid"),
     // new screen::OdometryPage(odom, 15, 15, true),
     // new screen::PIDPage(drive_pid, "drivepid"),
+    new screen::StatsPage(motor_names),
   };
 
   screen::start_screen(Brain.Screen, pages);
