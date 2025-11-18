@@ -1,5 +1,6 @@
 #include "competition/opcontrol.h"
 
+#include "core/utils/command_structure/auto_command.h"
 #include "robot-config.h"
 #include <cstdio>
 
@@ -29,17 +30,20 @@ void opcontrol() {
   con.ButtonRight.pressed([](){
     match_loader_sol.set(!match_loader_sol.value());
   });
+  con.ButtonL2.pressed([](){
+    doinker_sol.set(!doinker_sol.value());
+  });
 
-  // con.ButtonA.pressed([](){
-  //     CommandController cc{
-  //       drive_sys.DriveForwardCmd(48, vex::fwd, 1),
-  //       // drive_sys.TurnDegreesCmd(120),
-  //     };
-  //     Brain.Screen.printAt(20, 20, "runned");
-  //     enable_drive = false;
-  //     cc.run();
-  //     enable_drive = true;
-  // });
+  con.ButtonA.pressed([](){
+      CommandController cc{
+        drive_sys.DriveForwardCmd(96, vex::fwd, 0.6),
+        // drive_sys.DriveForwardCmd(24, vex::reverse, 0.45),
+      };
+      Brain.Screen.printAt(20, 20, "runned");
+      enable_drive = false;
+      cc.run();
+      enable_drive = true;
+  });
   while(true){
     double left;
     double right;
@@ -49,8 +53,7 @@ void opcontrol() {
     if(tank_drive){
       left = (double)con.Axis3.position() / 100;
       right = (double)con.Axis2.position() / 100;
-    }
-    else{
+    } else{
       left = (double)con.Axis3.position() / 100;
       right = (double)con.Axis1.position() / 100;
     }
@@ -64,7 +67,13 @@ void opcontrol() {
       drive_sys.drive_tank(left, right);
     }
     else if(enable_drive && !tank_drive){
-      drive_sys.drive_arcade(left, right);
+      // double max = std::max({std::abs(left), std::abs(right)});
+      // if (max > 12) {
+      //   double scalar = 12.0/max;
+      //   left *= scalar;
+      //   right *= scalar;
+      // }
+      drive_sys.drive_arcade((left*left)*sign(left),(right*right)*sign(right));
     }
   }
 }

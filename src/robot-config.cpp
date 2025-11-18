@@ -15,7 +15,7 @@ vex::brain Brain;
 
 vex::motor left1(PORT8, vex::gearSetting::ratio6_1, false);
 vex::motor left2(PORT9, vex::gearSetting::ratio6_1, true);
-vex::motor left3(PORT6, vex::gearSetting::ratio6_1, false);
+vex::motor left3(PORT7, vex::gearSetting::ratio6_1, false);
 vex::motor left4(PORT5, vex::gearSetting::ratio6_1, true);
 vex::motor left5(PORT4, vex::gearSetting::ratio6_1, false);
 vex::motor_group left_motors(left1, left2, left3, left4, left5);
@@ -35,11 +35,13 @@ std::map<std::string, vex::motor&> motor_names {
   {"left 2", left2},
   {"left 3", left3},
   {"left 4", left4},
+  {"left 5", left5},
 
   {"right 1", right1},
   {"right 2", right2},
   {"right 3", right3},
   {"right 4", right4},
+  {"right 5", right5},
 
   {"toproller", toproller},
   {"bottomroller", bottomroller}

@@ -52,6 +52,13 @@ AutoCommand * IntakeSys::IntakeCmd() {
   });
 }
 
+AutoCommand * IntakeSys::IntakeStopCmd() {
+  return new FunctionCommand([&]() {
+    this->intake_stop();
+    return true;
+  });
+}
+
 AutoCommand * IntakeSys::IntakeScoreCmd() {
   return new FunctionCommand([&]() {
     this->intake_score();

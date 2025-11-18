@@ -27,6 +27,7 @@ extern IntakeSys intake_sys;
 // Pneumatics
 extern vex::digital_out intake_sol;
 extern vex::digital_out match_loader_sol;
+extern vex::digital_out doinker_sol;
 extern vex::optical intake_sensor;
 
 

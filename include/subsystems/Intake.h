@@ -40,6 +40,7 @@ public:
   static int thread_fn(void *tr);
 
   AutoCommand * IntakeCmd();
+  AutoCommand * IntakeStopCmd();
   AutoCommand * IntakeScoreCmd();
   AutoCommand * OutakeCmd();
   AutoCommand * IntakeUpCmd();
