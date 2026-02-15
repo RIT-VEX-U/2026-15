@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/utils/logger.h"
+#include "logger/logger.h"
 #ifndef PI
 #define PI 3.141592654
 #endif
@@ -36,7 +38,7 @@ class TankDrive {
      * more info
      * @param odom an odometry system to track position and rotation. this is necessary to execute autonomous paths
      */
-    TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryBase *odom = NULL);
+    TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryBase *odom = NULL, SerialLogger *logger = NULL);
 
     AutoCommand *DriveToPointCmd(
       Translation2d pt, vex::directionType dir = vex::forward, double max_speed = 1.0, double end_speed = 0.0
@@ -47,6 +49,18 @@ class TankDrive {
     );
 
     AutoCommand *DriveToPointCmd(
+      double x, double y, vex::directionType dir = vex::forward, double max_speed = 1.0, double end_speed = 0.0
+    );
+
+    AutoCommand *CurveToPointCmd(
+      Translation2d pt, vex::directionType dir = vex::forward, double max_speed = 1.0, double end_speed = 0.0
+    );
+    AutoCommand *CurveToPointCmd(
+      Feedback &fb, Translation2d pt, vex::directionType dir = vex::forward, double max_speed = 1.0,
+      double end_speed = 0.0
+    );
+
+    AutoCommand *CurveToPointCmd(
       double x, double y, vex::directionType dir = vex::forward, double max_speed = 1.0, double end_speed = 0.0
     );
 
@@ -211,6 +225,39 @@ class TankDrive {
     bool drive_to_point(double x, double y, vex::directionType dir, double max_speed = 1, double end_speed = 0);
 
     /**
+     * Use odometry to automatically drive the robot to a point on the field.
+     * X and Y is the final point we want the robot.
+     *
+     * Returns whether or not the robot has reached it's destination.
+     * @param x          the x position of the target
+     * @param y          the y position of the target
+     * @param dir        the direction we want to travel forward and backward
+     * @param feedback   the feedback controller we will use to travel. controls the rate at which we accelerate and
+     * drive.
+     * @param max_speed  the maximum percentage of robot speed at which the robot will travel. 1 = full power
+     * @param end_speed  the movement profile will attempt to reach this velocity by its completion
+     */
+    bool curve_to_point(
+      double x, double y, vex::directionType dir, Feedback &feedback, double max_speed = 1, double end_speed = 0
+    );
+
+    /**
+     * Use odometry to automatically drive the robot to a point on the field.
+     * X and Y is the final point we want the robot.
+     * Here we use the default feedback controller from the drive_sys
+     *
+     * Returns whether or not the robot has reached it's destination.
+     * @param x          the x position of the target
+     * @param y          the y position of the target
+     * @param dir        the direction we want to travel forward and backward
+     * @param max_speed  the maximum percentage of robot speed at which the
+     * robot will travel. 1 = full power
+     * @param end_speed  the movement profile will attempt to reach this
+     * velocity by its completion
+     */
+    bool curve_to_point(double x, double y, vex::directionType dir, double max_speed = 1, double end_speed = 0);
+
+    /**
      * Turn the robot in place to an exact heading relative to the field.
      * 0 is forward.
      *
@@ -302,4 +349,5 @@ class TankDrive {
     bool func_initialized = false; ///< used to control initialization of autonomous driving. (you only wan't to set the
                                    ///< target once, not every iteration that you're driving)
     bool is_pure_pursuit = false;  ///< true if we are driving with a pure pursuit system
+    SerialLogger *logger;
 };

@@ -16,9 +16,7 @@ int main() {
     comp.autonomous(autonomous);
     comp.drivercontrol(opcontrol);
 
+    comp.bStopAllTasksBetweenModes = true;
+
     robot_init();
-    
-    while (true) {
-        vexDelay(100);
-    }
 }

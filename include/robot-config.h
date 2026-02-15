@@ -36,6 +36,8 @@ extern Superstructure superstructure;
 // === Configuration ===
 extern robot_specs_t robot_config;
 
+extern uint64_t init_us;
+
 /**
  * Initialize the robot hardware and subsystems
  * Called once at startup before competition modes

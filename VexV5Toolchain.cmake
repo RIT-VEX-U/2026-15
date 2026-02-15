@@ -8,28 +8,17 @@
 # Global directory structure:
 # ~/.vex/vexcode/
 # |── V5_YYYYMMDD_HH_MM_SS/vexv5/           (SDK)
-# └── ATfE-20.1.0-platform/                 (Toolchain)
-#     ├── bin/                              (Clang compiler)
-#     ├── tools/vexcom/                     (Vexcom)
-#     └── tools/ninja/                      (Ninja build system)
+# └── toolchain_platform/                   (Toolchain)
+#     ├── clang/bin/                        (Clang compiler)
+#     ├── gcc/bin/                          (GCC tools)
+#     └── tools/vexcom/                     (Vexcom)
+#
 # Options:
 # -DVEX_FORCE_REINSTALL=ON: Force complete reinstallation by removing ~/.vex/vexcode directory
 # -DVEX_QUIET_BUILD=ON: Suppress compiler warnings during build
 
-
 # Set up global directory
-
 if(WIN32)
-  set(WINDOWS 1)
-elseif(APPLE)
-  set(MACOS 1)
-elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  set(AARCH64 1)
-else()
-  set(LINUX64 1)
-endif()
-
-if(WINDOWS)
     file(TO_CMAKE_PATH "$ENV{USERPROFILE}/.vex/vexcode" VEX_GLOBAL_DIR)
 else()
     set(VEX_GLOBAL_DIR "$ENV{HOME}/.vex/vexcode")
@@ -47,14 +36,12 @@ if(EXISTS "${VEX_GLOBAL_DIR}")
 endif()
 
 # set toolchain path based on platform
-if(WINDOWS)
-  set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/ATfE-20.1.0-Windows-x86_64")
-elseif(MACOS)
-  set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/ATfE-20.1.0-Darwin-universal")
-elseif(AARCH64)
-  set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/ATfE-20.1.0-Linux-AArch64")
+if(WIN32)
+    set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/toolchain_win32")
+elseif(APPLE)
+    set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/toolchain_osx64")
 else()
-  set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/ATfE-20.1.0-Linux-x86_64")
+    set(VEX_TOOLCHAIN_PATH "${VEX_GLOBAL_DIR}/toolchain_linux64")
 endif()
 
 # gets the latest SDK version from the manifest.json file
@@ -62,7 +49,7 @@ function(get_latest_sdk_version OUT_VERSION)
     set(MANIFEST_URL "https://content.vexrobotics.com/vexos/public/V5/vscode/sdk/cpp/manifest.json")
 
     # download to temporary directory
-    if(WINDOWS)
+    if(WIN32)
         set(TEMP_DIR "$ENV{TEMP}")
     else()
         set(TEMP_DIR "/tmp")
@@ -154,8 +141,6 @@ if(NOT VEX_SDK_PATH OR NOT EXISTS "${VEX_SDK_PATH}")
         # clean up download file
         file(REMOVE "${SDK_DOWNLOAD_FILE}")
 
-        file(DOWNLOAD "https://gist.githubusercontent.com/PascalSkylake/fa58c0fae422cf36b11b5ceedf922db0/raw/aec5cb9c4b1088dc7a6553b001ff6d79d268e692/lscript1.ld" "${SDK_EXTRACT_PATH}/lscript1.ld")
-
         message(STATUS "SDK installed to ${SDK_EXTRACT_PATH}")
     else()
         message(STATUS "SDK already exists at ${SDK_EXTRACT_PATH}")
@@ -174,20 +159,16 @@ if(NOT VEX_TOOLCHAIN_PATH OR NOT EXISTS "${VEX_TOOLCHAIN_PATH}")
     message(STATUS "VEX Toolchain not found, will download automatically...")
 
     # use the right URL for the platform
-    if(WINDOWS)
-        set(TOOLCHAIN_URL "https://github.com/RIT-VEX-U/ForkTemplate/releases/download/1.0/ATfE-20.1.0-Windows-x86_64.zip")
-        set(TOOLCHAIN_SUBDIR "ATfE-20.1.0-Windows-x86_64")
-      elseif(MACOS)
-        set(TOOLCHAIN_URL "https://github.com/RIT-VEX-U/ForkTemplate/releases/download/1.0/ATfE-20.1.0-Darwin-universal.zip")
-        set(TOOLCHAIN_SUBDIR "ATfE-20.1.0-Darwin-universal")
-      elseif(AARCH64)
-        set(TOOLCHAIN_URL "https://github.com/RIT-VEX-U/ForkTemplate/releases/download/1.0/ATfE-20.1.0-Linux-AArch64.tar.xz")
-        set(TOOLCHAIN_SUBDIR "ATfE-20.1.0-Linux-AArch64")
-      else()
-        set(TOOLCHAIN_URL "https://github.com/RIT-VEX-U/ForkTemplate/releases/download/1.0/ATfE-20.1.0-Linux-x86_64.tar.xz")
-        set(TOOLCHAIN_SUBDIR "ATfE-20.1.0-Linux-x86_64")
+    if(WIN32)
+        set(TOOLCHAIN_URL "https://content.vexrobotics.com/vexos/public/vscode/toolchain/win/toolchain_win32.zip")
+        set(TOOLCHAIN_SUBDIR "toolchain_win32")
+    elseif(APPLE)
+        set(TOOLCHAIN_URL "https://content.vexrobotics.com/vexos/public/vscode/toolchain/osx/toolchain_osx64.zip")
+        set(TOOLCHAIN_SUBDIR "toolchain_osx64")
+    else()
+        set(TOOLCHAIN_URL "https://content.vexrobotics.com/vexos/public/vscode/toolchain/linux/toolchain_linux64.zip")
+        set(TOOLCHAIN_SUBDIR "toolchain_linux64")
     endif()
-
 
     set(TOOLCHAIN_EXTRACT_PATH "${VEX_GLOBAL_DIR}/${TOOLCHAIN_SUBDIR}")
     set(TOOLCHAIN_DOWNLOAD_FILE "${VEX_GLOBAL_DIR}/vex-toolchain.zip")
@@ -223,11 +204,8 @@ if(NOT VEX_TOOLCHAIN_PATH OR NOT EXISTS "${VEX_TOOLCHAIN_PATH}")
             endif()
         endif()
 
-        # clean up downloaded files
+        # clean up downloaded file
         file(REMOVE "${TOOLCHAIN_DOWNLOAD_FILE}")
-
-        set(VEX_VEXCOM_PATH ${TOOLCHAIN_EXTRACT_PATH}/tools/vexcom)
-
 
         message(STATUS "Toolchain installed to ${TOOLCHAIN_EXTRACT_PATH}")
     else()
@@ -236,10 +214,93 @@ if(NOT VEX_TOOLCHAIN_PATH OR NOT EXISTS "${VEX_TOOLCHAIN_PATH}")
 
     if(EXISTS "${TOOLCHAIN_EXTRACT_PATH}")
         set(VEX_TOOLCHAIN_PATH "${TOOLCHAIN_EXTRACT_PATH}")
-        set(VEX_VEXCOM_PATH "${VEX_TOOLCHAIN_PATH}/tools/vexcom")
         message(STATUS "Successfully installed Toolchain to global directory")
     else()
         message(FATAL_ERROR "Toolchain installation failed")
+    endif()
+endif()
+
+# download vexcom if not found
+if(VEX_VEXCOM_PATH AND EXISTS "${VEX_VEXCOM_PATH}")
+    set(VEX_VEXCOM_PATH "${VEX_VEXCOM_PATH}")
+    message(STATUS "Using existing vexcom from environment")
+else()
+    set(VEX_VEXCOM_PATH "${VEX_TOOLCHAIN_PATH}/tools/vexcom")
+endif()
+
+if(NOT EXISTS "${VEX_VEXCOM_PATH}")
+    message(STATUS "vexcom not found, will download automatically...")
+
+    set(VEXCOM_URL "https://openvsxorg.blob.core.windows.net/resources/VEXRobotics/vexcode/0.6.1/VEXRobotics.vexcode-0.6.1.vsix")
+    set(VEXCOM_DOWNLOAD_FILE "${VEX_GLOBAL_DIR}/vex-vexcom.zip")
+
+    message(STATUS "Downloading vexcom to ${VEX_VEXCOM_PATH}...")
+
+    file(MAKE_DIRECTORY "${VEX_GLOBAL_DIR}")
+
+    file(DOWNLOAD "${VEXCOM_URL}" "${VEXCOM_DOWNLOAD_FILE}"
+         SHOW_PROGRESS
+         STATUS DOWNLOAD_STATUS)
+
+    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+    if(NOT STATUS_CODE EQUAL 0)
+        list(GET DOWNLOAD_STATUS 1 ERROR_MSG)
+        message(FATAL_ERROR "Failed to download vexcom: ${ERROR_MSG}")
+    endif()
+
+    message(STATUS "Extracting vexcom...")
+    file(ARCHIVE_EXTRACT INPUT "${VEXCOM_DOWNLOAD_FILE}" DESTINATION "${VEX_GLOBAL_DIR}")
+
+    # determine platform subdirectory
+    if(WIN32)
+        set(VEXCOM_PLATFORM "win32")
+    elseif(APPLE)
+        set(VEXCOM_PLATFORM "osx")
+    else()
+        set(VEXCOM_PLATFORM "linux-x64")
+    endif()
+
+    set(VEXCOM_SOURCE_DIR "${VEX_GLOBAL_DIR}/extension/resources/tools/vexcom/${VEXCOM_PLATFORM}")
+    set(VEXCOM_DEST_DIR "${VEX_TOOLCHAIN_PATH}/tools/vexcom")
+
+    # create directory if it doesn't exist
+    file(MAKE_DIRECTORY "${VEXCOM_DEST_DIR}")
+
+    # copy vexcom platform files to toolchain tools directory
+    if(EXISTS "${VEXCOM_SOURCE_DIR}")
+        file(COPY "${VEXCOM_SOURCE_DIR}/" DESTINATION "${VEXCOM_DEST_DIR}")
+        message(STATUS "Copied vexcom ${VEXCOM_PLATFORM} files to ${VEXCOM_DEST_DIR}")
+
+        # set execute permissions on unix like systems
+        if(UNIX)
+            execute_process(
+                COMMAND chmod -R +x "${VEXCOM_DEST_DIR}"
+                RESULT_VARIABLE VEXCOM_CHMOD_RESULT
+                OUTPUT_QUIET
+                ERROR_QUIET
+            )
+            if(NOT VEXCOM_CHMOD_RESULT EQUAL 0)
+                message(WARNING "Failed to set execute permissions on ${VEXCOM_DEST_DIR}")
+            endif()
+        endif()
+    else()
+        message(FATAL_ERROR "Vexcom source directory not found: ${VEXCOM_SOURCE_DIR}")
+    endif()
+
+    # clean up the extracted extension folder and garbage files
+    file(REMOVE_RECURSE "${VEX_GLOBAL_DIR}/extension")
+    file(GLOB GARBAGE_FILES "${VEX_GLOBAL_DIR}/*.xml" "${VEX_GLOBAL_DIR}/*.vsixmanifest")
+    if(GARBAGE_FILES)
+        file(REMOVE ${GARBAGE_FILES})
+    endif()
+
+    # clean up downloaded file
+    file(REMOVE "${VEXCOM_DOWNLOAD_FILE}")
+
+    if(EXISTS "${VEX_VEXCOM_PATH}")
+        message(STATUS "Successfully installed vexcom to toolchain directory")
+    else()
+        message(FATAL_ERROR "Vexcom installation failed")
     endif()
 endif()
 
@@ -258,61 +319,81 @@ if(NOT VEX_TOOLCHAIN_PATH OR NOT EXISTS "${VEX_TOOLCHAIN_PATH}")
         "Current VEX_TOOLCHAIN_PATH: ${VEX_TOOLCHAIN_PATH}")
 endif()
 
-# set(CMAKE_MAKE_PROGRAM              ${VEX_TOOLCHAIN_PATH}/tools/ninja/ninja${EXE_SUFFIX})
-if(WINDOWS)
+if(NOT VEX_VEXCOM_PATH OR NOT EXISTS "${VEX_VEXCOM_PATH}")
+    message(FATAL_ERROR
+        "Vexcom not found and download failed.\n"
+        "Manually set VEX_VEXCOM_PATH or check your internet connection.\n"
+        "Current VEX_VEXCOM_PATH: ${VEX_VEXCOM_PATH}")
+endif()
+
+set(VEX_GCC_PATH "${VEX_TOOLCHAIN_PATH}/gcc/bin")
+set(VEX_TOOLS_PATH "${VEX_TOOLCHAIN_PATH}/tools/bin")
+set(VEX_COMPILER_PATH "${VEX_TOOLCHAIN_PATH}/clang/bin")
+
+# skip trying to compile test files with vex compiler (it always fails soo)
+set(CMAKE_C_COMPILER_WORKS 1)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+# generic system (unless someone wants to convince cmake to accept a vexv5 system)
+set(CMAKE_SYSTEM_NAME               Generic)
+set(CMAKE_SYSTEM_PROCESSOR          arm)
+# vex stdlib is c++11
+set (CMAKE_CXX_STANDARD 11)
+
+# windows compatibility
+if(WIN32)
     set(EXE_SUFFIX ".exe")
 else()
     set(EXE_SUFFIX "")
 endif()
 
-set(VEX_COMPILER_PATH "${VEX_TOOLCHAIN_PATH}/bin")
-
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_CXX_COMPILER_WORKS 1)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-set(CMAKE_SYSTEM_NAME               Generic)
-set(CMAKE_SYSTEM_PROCESSOR          arm)
-
-set(CMAKE_MAKE_PROGRAM              ${VEX_TOOLCHAIN_PATH}/tools/ninja/ninja${EXE_SUFFIX} CACHE FILEPATH "${VEX_TOOLCHAIN_PATH}/tools/ninja/ninja${EXE_SUFFIX}" FORCE)
-set(CMAKE_AR                        ${VEX_COMPILER_PATH}/llvm-ar${EXE_SUFFIX})
+set(CMAKE_MAKE_PROGRAM              ${VEX_TOOLS_PATH}/make${EXE_SUFFIX} CACHE FILEPATH "make" FORCE)
+set(CMAKE_AR                        ${VEX_GCC_PATH}/arm-none-eabi-ar${EXE_SUFFIX})
 set(CMAKE_C_COMPILER                ${VEX_COMPILER_PATH}/clang${EXE_SUFFIX})
 set(CMAKE_CXX_COMPILER              ${VEX_COMPILER_PATH}/clang${EXE_SUFFIX})
 set(CMAKE_C_COMPILER_ID             Clang)
 set(CMAKE_CXX_COMPILER_ID           Clang)
-set(CMAKE_LINKER                    ${VEX_COMPILER_PATH}/ld.lld${EXE_SUFFIX})
-set(CMAKE_OBJCOPY                   ${VEX_COMPILER_PATH}/llvm-objcopy${EXE_SUFFIX})
-set(CMAKE_OBJDUMP                   ${VEX_COMPILER_PATH}/llvm-objdump${EXE_SUFFIX})
-set(CMAKE_SIZE                      ${VEX_COMPILER_PATH}/llvm-size${EXE_SUFFIX})
+set(CMAKE_LINKER                    ${VEX_GCC_PATH}/arm-none-eabi-ld${EXE_SUFFIX})
+set(CMAKE_OBJCOPY                   ${VEX_GCC_PATH}/arm-none-eabi-objcopy${EXE_SUFFIX})
+set(CMAKE_OBJDUMP                   ${VEX_GCC_PATH}/arm-none-eabi-objdump${EXE_SUFFIX})
+set(CMAKE_SIZE                      ${VEX_GCC_PATH}/arm-none-eabi-size${EXE_SUFFIX})
 
 # use the vex linker script
-set(CMAKE_C_LINK_EXECUTABLE  "<CMAKE_LINKER> -z norelro -T \"${VEX_SDK_PATH}/lscript1.ld\"  --gc-sections -L\"${VEX_SDK_PATH}\" -L\"${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/lib\" <OBJECTS> -o <TARGET> --start-group -lv5rt -lc++ -lc -lm -lclang_rt.builtins --end-group")
-set(CMAKE_CXX_LINK_EXECUTABLE ${CMAKE_C_LINK_EXECUTABLE})
+set(CMAKE_C_LINK_EXECUTABLE   "<CMAKE_LINKER> -nostdlib -T \"${VEX_SDK_PATH}/lscript.ld\" -R \"${VEX_SDK_PATH}/stdlib_0.lib\" --gc-section -L\"${VEX_SDK_PATH}\" -L\"${VEX_SDK_PATH}/gcc/libs\" <OBJECTS> -o <TARGET> --start-group -lv5rt -lstdc++ -lc -lm -lgcc --end-group")
+set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_LINKER> -nostdlib -T \"${VEX_SDK_PATH}/lscript.ld\" -R \"${VEX_SDK_PATH}/stdlib_0.lib\" --gc-section -L\"${VEX_SDK_PATH}\" -L\"${VEX_SDK_PATH}/gcc/libs\" <OBJECTS> -o <TARGET> --start-group -lv5rt -lstdc++ -lc -lm -lgcc --end-group")
 
 add_compile_options(-DVexV5)
 
-set(CFLAGS_CL "-target thumbv7-none-eabi -fshort-enums -Wno-unknown-attributes -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=long -D__UINT32_TYPE__=\"unsigned long\" -U__ARM_NEON__ -U__ARM_NEON")
+set(CFLAGS_CL "-target thumbv7-none-eabi -fshort-enums -Wno-unknown-attributes -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=long -D__UINT32_TYPE__='unsigned long' -U__ARM_NEON__ -U__ARM_NEON")
 set(CFLAGS_V7 "-march=armv7-a -mfpu=neon -mfloat-abi=softfp")
 
 if(VEX_QUIET_BUILD)
     set(WARNING_FLAGS "-w")  # suppress all warnings
 else()
-    set(WARNING_FLAGS "-Wall -Werror=return-type")  # enable all warnings
+  set(WARNING_FLAGS "-Wall -Wno-c++17-extensions -Werror=return-type")  # enable all warnings
 endif()
 
-set(CMAKE_C_FLAGS                   "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -ansi -std=c23")
-set(CMAKE_CXX_FLAGS                 "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -fno-rtti -fno-threadsafe-statics -fno-exceptions  -std=c++23 -ffunction-sections -fdata-sections" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS                   "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -ansi -std=gnu99")
+set(CMAKE_CXX_FLAGS                 "${CFLAGS_CL} ${CFLAGS_V7} -Os ${WARNING_FLAGS} -fno-rtti -fno-threadsafe-statics -fno-exceptions  -std=gnu++11 -ffunction-sections -fdata-sections" CACHE INTERNAL "")
 
 set(CMAKE_C_FLAGS_DEBUG             "" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE           "" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_C_FLAGS_DEBUG}" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_RELEASE         "${CMAKE_C_FLAGS_RELEASE}" CACHE INTERNAL "")
 
-include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/include/c++/v1")
-include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang-runtimes/newlib/arm-none-eabi/armv7a_soft_vfpv3_d16_unaligned/include")
-include_directories(SYSTEM "${VEX_TOOLCHAIN_PATH}/lib/clang/20/include")
-
+include_directories(SYSTEM "${VEX_SDK_PATH}/clang/8.0.0/include")
+include_directories(SYSTEM "${VEX_SDK_PATH}/gcc/include/c++/4.9.3")
+include_directories(SYSTEM "${VEX_SDK_PATH}/gcc/include/c++/4.9.3/arm-none-eabi/armv7-ar/thumb")
+include_directories(SYSTEM "${VEX_SDK_PATH}/gcc/include")
 include_directories(SYSTEM "${VEX_SDK_PATH}/include")
+
+set(GLOB_RECURSE vex_headers "${VEX_SDK_PATH}/include/*.h")
+
+# don't use system headers or libraries
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 function(vex_add_executable target_name)
     add_executable(${target_name})

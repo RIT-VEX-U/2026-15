@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/VexV5Toolchain.cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,7 +14,7 @@ set(VEX_PROJECT_NAME "${VEX_PROJECT_NAME}" CACHE STRING "Name from .vscode/vex_p
 
 project(${VEX_PROJECT_NAME} LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)

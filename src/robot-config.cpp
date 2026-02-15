@@ -1,4 +1,5 @@
 #include "robot-config.h"
+#include <v5_api.h>
 #include "subsystems/superstructure.h"
 
 // ========== Vex stuff ==========
@@ -20,12 +21,12 @@ vex::motor right_1(PORT19, vex::gearSetting::ratio6_1, false);
 vex::motor right_2(PORT16, vex::gearSetting::ratio6_1, true);
 vex::motor right_3(PORT15, vex::gearSetting::ratio6_1, false);
 vex::motor right_4(PORT13, vex::gearSetting::ratio6_1, true); 
-vex::motor right_5(PORT12, vex::gearSetting::ratio6_1, false);
+vex::motor right_5(PORT11, vex::gearSetting::ratio6_1, false);
 vex::motor_group right_motors(right_1, right_2, right_3, right_4, right_5);
 
 // ========== Intake Roller ==========
-vex::motor intake_motor_left(PORT20, vex::gearSetting::ratio6_1, false);
-vex::motor intake_motor_right(PORT21, vex::gearSetting::ratio6_1, true);
+vex::motor intake_motor_left(PORT10, vex::gearSetting::ratio6_1, true);
+vex::motor intake_motor_right(PORT20, vex::gearSetting::ratio6_1, false);
 vex::motor_group intake_motors(intake_motor_left, intake_motor_right);
 
 // ========== Lever ==========
@@ -35,8 +36,7 @@ vex::motor_group lever_motors(lever_motor_left, lever_motor_right);
 vex::rotation lever_rotation_sensor(PORT4);
 
 // ========== IMU ==========
-// TODO: figure out where IMU actually is, or where lever motor left actually is
-// vex::inertial imu(PORT3);
+vex::inertial imu(PORT2);
 
 // ========== Lift Pistons ==========
 // TODO: add other solonoids aka the wing and the hood,
@@ -49,7 +49,7 @@ vex::rotation lever_rotation_sensor(PORT4);
 
 // ========= Robot Config ==========
 robot_specs_t robot_config = {
-    .robot_radius = 13.5,
+    .robot_radius = 10,
     .dist_between_wheels = 12.0
 };
 
@@ -125,9 +125,17 @@ Superstructure superstructure(
 //     SUPER_LEVER_PID_INVERTED
 // );
 
+uint64_t init_us;
+
 void robot_init() {
     imu.calibrate();
+    while (imu.isCalibrating()) {
+      vexDelay(10);
+    }
+    printf("IMU Calibrated\n");
     superstructure.start();
-    printf("IMU calibration started\n");
+
+    init_us = vexSystemHighResTimeGet();
+
     printf("Robot initialized\n");
 }

@@ -158,14 +158,15 @@ void opcontrol_normal() {
         if (++display_tick >= 10) {
             display_tick = 0;
             
-            printf("State: %s",
+            printf("State: %s, ",
                    superstructure.state_to_string());
-            printf("Lever: %.1f deg",
+            printf("Lever: %.1f deg, ",
                    superstructure.get_lever_angle());
             printf("Lift: %s",
-                   superstructure.lift_is_extended() ? "Extended" : "Retracted");
+                   superstructure.lift_is_extended() ? "Extended, " : "Retracted, ");
             printf("Drive: %s",
                    drive_reversed ? "Reverse" : "Normal");
+            printf("\n");
         }
 
         vexDelay(10);
@@ -176,30 +177,5 @@ void opcontrol_normal() {
  * Three wire port test (A->F B->G X->H)
  */
 void opcontrol() {
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Three wire port test (A->F B->G X->H)");
-
-    vex::digital_out port_f(Brain.ThreeWirePort.F);
-    vex::digital_out port_g(Brain.ThreeWirePort.G);
-    vex::digital_out port_h(Brain.ThreeWirePort.H);
-
-    while (true) {
-        bool a_was_pressed = Controller.ButtonA.pressing();
-        bool b_was_pressed = Controller.ButtonB.pressing();
-        bool x_was_pressed = Controller.ButtonX.pressing();
-
-        port_f.set(a_was_pressed);
-        port_g.set(b_was_pressed);
-        port_h.set(x_was_pressed);
-
-        Brain.Screen.setCursor(2, 1);
-        Brain.Screen.clearLine();
-        Brain.Screen.print("F: %s  G: %s  H: %s",
-                           a_was_pressed ? "ON" : "OFF",
-                           b_was_pressed ? "ON" : "OFF",
-                           x_was_pressed ? "ON" : "OFF");
-        
-        vexDelay(10);
-    }
+  opcontrol_normal();
 }
