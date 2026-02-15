@@ -1,5 +1,4 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 ColumnLimit : 120
-IndentWidth : 4 
-ContinuationIndentWidth : 2 
-AlignAfterOpenBracket: BlockIndent
+IndentWidth : 2
+AlwaysBreakTemplateDeclarations: 'Yes'
