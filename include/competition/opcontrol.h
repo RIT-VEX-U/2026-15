@@ -6,3 +6,5 @@
 void opcontrol();
 
 void skills();
+
+void opcontrol_normal();

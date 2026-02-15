@@ -3,18 +3,41 @@
 #include "core.h"
 #include "vex.h"
 
-// ================ INPUTS ================
-// Digital sensors
+#include "subsystems/Drive.h"
+#include "subsystems/superstructure.h"
 
-// Analog sensors
+// === Hardware ===
+extern vex::controller Controller;
+extern vex::brain Brain;
 
-// ================ OUTPUTS ================
-// Motors
+// Drive motors
+extern vex::motor_group left_motors;
+extern vex::motor_group right_motors;
+extern TankDrive drive_sys;
 
-// Pneumatics
+// Intake motors
+extern vex::motor_group intake_motors;
 
-// ================ SUBSYSTEMS ================
+// Lever motors and sensor
+extern vex::motor_group lever_motors;
+extern vex::rotation lever_rotation_sensor;
 
-// ================ UTILS ================
+// Sensors
+extern vex::inertial imu;
 
+// Lift pistons (uncomment when added)
+// extern vex::digital_out lift_piston_left;
+// extern vex::digital_out lift_piston_right;
+
+// === Subsystems ===
+extern Drive drive;
+extern Superstructure superstructure;
+
+// === Configuration ===
+extern robot_specs_t robot_config;
+
+/**
+ * Initialize the robot hardware and subsystems
+ * Called once at startup before competition modes
+ */
 void robot_init();
