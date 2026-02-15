@@ -33,19 +33,16 @@ vex::motor_group intake_motors(intake_motor_left, intake_motor_right);
 vex::motor lever_motor_left(PORT3, vex::gearSetting::ratio6_1, false);
 vex::motor lever_motor_right(PORT1, vex::gearSetting::ratio6_1, true);
 vex::motor_group lever_motors(lever_motor_left, lever_motor_right);
-vex::rotation lever_rotation_sensor(PORT4);
+vex::rotation lever_rotation_sensor(PORT4, true);
 
 // ========== IMU ==========
 vex::inertial imu(PORT2);
 
-// ========== Lift Pistons ==========
-// TODO: add other solonoids aka the wing and the hood,
-// also lift pistons are 1 3 wire port or somnething now
-// also im pretty sure the 3 pistons are in FGH
-// Uncomment when added:
-// vex::digital_out lift_piston(Brain.ThreeWirePort.!!!);
-// vex::digital_out wing_piston(Brain.ThreeWirePort.!!!);
-// vex::digital_out hood_piston(Brain.ThreeWirePort.!!!);
+// ========== Pistons ==========
+vex::digital_out lift_sol(Brain.ThreeWirePort.G);
+vex::digital_out hood_sol(Brain.ThreeWirePort.F);
+vex::digital_out load_sol(Brain.ThreeWirePort.E);
+vex::digital_out wing_sol(Brain.ThreeWirePort.H);
 
 // ========= Robot Config ==========
 robot_specs_t robot_config = {
@@ -62,10 +59,10 @@ const double SUPER_INTAKE_VOLTAGE = 12.0;
 const double SUPER_OUTTAKE_VOLTAGE = 12.0;
 const double SUPER_LEVER_UP_VOLTAGE = 10.0;
 const double SUPER_LEVER_DOWN_VOLTAGE = 8.0;
-const double SUPER_LEVER_UP_POSITION_TOP = 265.0;
-const double SUPER_LEVER_UP_POSITION_MIDDLE = 254.0;
+const double SUPER_LEVER_UP_POSITION_TOP = 100;
+const double SUPER_LEVER_UP_POSITION_MIDDLE = 50;
 const double SUPER_LEVER_DOWN_POSITION = 0.0;
-const double SUPER_LEVER_DEADBAND = 10.0;
+const double SUPER_LEVER_DEADBAND = 3.0;
 const double SUPER_LEVER_HOLD_KP = 0.2;
 const double SUPER_LEVER_HOLD_KD = 0.004;
 const bool SUPER_LEVER_PID_INVERTED = false;
@@ -80,8 +77,10 @@ Superstructure superstructure(
     intake_motors,
     lever_motors,
     lever_rotation_sensor,
-    nullptr, // lift_left
-    nullptr, // lift_right
+    &lift_sol,
+    &hood_sol,
+    &load_sol,
+    &wing_sol,
     SUPER_INTAKE_VOLTAGE,
     SUPER_OUTTAKE_VOLTAGE,
     SUPER_LEVER_UP_VOLTAGE,

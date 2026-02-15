@@ -1,5 +1,6 @@
 #include "subsystems/superstructure.h"
 #include "core/utils/command_structure/auto_command.h"
+#include "core/utils/math/geometry/rotation2d.h"
 #include "vex.h"
 #include <cstdio>
 #include <cmath>
@@ -9,8 +10,10 @@ Superstructure::Superstructure(
     vex::motor_group &intake_motors,
     vex::motor_group &lever_motors,
     vex::rotation &lever_rotation,
-    vex::digital_out *lift_left,
-    vex::digital_out *lift_right,
+    vex::digital_out *lift_sol,
+    vex::digital_out *hood_sol,
+    vex::digital_out *load_sol,
+    vex::digital_out *wing_sol,
     double intake_voltage,
     double outtake_voltage,
     double lever_up_voltage,
@@ -30,8 +33,10 @@ Superstructure::Superstructure(
 ) : intake_motors(intake_motors),
     lever_motors(lever_motors),
     lever_rotation(lever_rotation),
-    lift_left(lift_left),
-    lift_right(lift_right),
+    lift_sol(lift_sol),
+    hood_sol(hood_sol),
+    load_sol(load_sol),
+    wing_sol(wing_sol),
     intake_voltage(intake_voltage),
     outtake_voltage(outtake_voltage),
     lever_up_voltage(lever_up_voltage),
@@ -78,7 +83,6 @@ void Superstructure::intake(double volts) {
 
 void Superstructure::outtake_top() {
     lever_reached_up = false;
-    set_lift(true);
     state = OuttakingTop;
 }
 
@@ -153,44 +157,111 @@ void Superstructure::manual_lever_stop() {
 
 // === Lift Control ===
 
-void Superstructure::lift_extend() {
+void Superstructure::lift_up() {
     set_lift(true);
 }
 
-void Superstructure::lift_retract() {
+void Superstructure::lift_down() {
     set_lift(false);
 }
 
 void Superstructure::lift_toggle() {
-    set_lift(!lift_extended);
+    set_lift(!lift_up_);
 }
 
-bool Superstructure::lift_is_extended() const {
-    return lift_extended;
+bool Superstructure::lift_is_up() const {
+    return lift_up_;
 }
 
+
+void Superstructure::hood_open() {
+    set_hood(true);
+}
+
+void Superstructure::hood_close() {
+    set_hood(false);
+}
+
+void Superstructure::hood_toggle() {
+    set_hood(!hood_open_);
+}
+
+bool Superstructure::hood_is_open() const {
+    return hood_open_;
+}
+
+void Superstructure::load_down() {
+    set_load(true);
+}
+
+void Superstructure::load_up() {
+    set_load(false);
+}
+
+void Superstructure::load_toggle() {
+    set_load(!load_down_);
+}
+
+bool Superstructure::load_is_down() const {
+    return load_down_;
+}
+
+
+void Superstructure::wing_down() {
+    set_wing(true);
+}
+
+void Superstructure::wing_up() {
+    set_wing(false);
+}
+
+void Superstructure::wing_toggle() {
+    set_wing(!wing_down_);
+}
+
+bool Superstructure::wing_is_down() const {
+    return wing_down_;
+}
 Superstructure::State Superstructure::get_state() const {
     return state;
 }
 
-void Superstructure::set_lift(bool extend) {
-    lift_extended = extend;
-    if (lift_left != nullptr) {
-        lift_left->set(extend);
+void Superstructure::set_lift(bool up) {
+    lift_up_ = up;
+    if (lift_sol != nullptr) {
+        lift_sol->set(up);
     }
-    if (lift_right != nullptr) {
-        lift_right->set(extend);
+}
+
+void Superstructure::set_hood(bool open) {
+    hood_open_ = open;
+    if (hood_sol != nullptr) {
+        hood_sol->set(open);
+    }
+}
+
+void Superstructure::set_load(bool down) {
+    load_down_ = down;
+    if (load_sol != nullptr) {
+        load_sol->set(down);
+    }
+}
+
+void Superstructure::set_wing(bool down) {
+    wing_down_ = down;
+    if (wing_sol != nullptr) {
+        wing_sol->set(down);
     }
 }
 
 // === Statuses ===
 
 double Superstructure::get_lever_angle() const {
-    return lever_rotation.position(vex::rotationUnits::deg);
+    return wrap_degrees_180(lever_rotation.position(vex::rotationUnits::deg));
 }
 
 bool Superstructure::lever_at_target(double target) const {
-    return fabs(get_lever_angle() - target) <= lever_deadband;
+    return fabs(get_lever_angle() - target) <= lever_deadband || get_lever_angle() > target;
 }
 
 bool Superstructure::lever_at_down() const {
@@ -304,6 +375,7 @@ int Superstructure::thread_fn(void *ptr) {
         switch (self.state) {
         case Idle:
             // defaults
+            self.apply_lever_voltage(-1);
             break;
 
         case Intaking:
@@ -320,6 +392,10 @@ int Superstructure::thread_fn(void *ptr) {
                 (self.state == OuttakingTop) ? self.lever_up_position_top :
                                                self.lever_up_position_middle;
             if (!self.lever_reached_up) {
+                self.hood_open();
+                self.intake_motors.spin(vex::forward,
+                                       self.intake_volts,
+                                       vex::volt);
                 self.lever_motors.spin(vex::forward,
                                        self.lever_up_voltage,
                                        vex::volt);
@@ -327,10 +403,12 @@ int Superstructure::thread_fn(void *ptr) {
                     self.lever_reached_up = true;
                 }
             } else {
+                self.intake_motors.stop();
                 self.lever_motors.spin(vex::reverse,
                                        self.lever_down_voltage,
                                        vex::volt);
                 if (self.lever_at_down()) {
+                    self.hood_close();
                     self.state = Idle;
                 }
             }
@@ -453,14 +531,14 @@ AutoCommand *Superstructure::StopCmd() {
 
 AutoCommand *Superstructure::LiftExtendCmd() {
     return new FunctionCommand([this]() {
-        this->lift_extend();
+        this->lift_up();
         return true;
     });
 }
 
 AutoCommand *Superstructure::LiftRetractCmd() {
     return new FunctionCommand([this]() {
-        this->lift_retract();
+        this->lift_down();
         return true;
     });
 }

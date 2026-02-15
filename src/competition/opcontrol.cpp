@@ -50,6 +50,9 @@ namespace {
     }
 }
 
+
+
+
 /**
  * Left Stick Y: Forward/Backward
  * Left Stick X: Turn
@@ -78,6 +81,20 @@ void opcontrol_normal() {
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("Opcontrol normal");
+
+    Controller.ButtonY.pressed([]() {
+        superstructure.wing_down();
+    });
+    Controller.ButtonY.released([]() {
+        superstructure.wing_up();
+    });
+
+    Controller.ButtonRight.pressed([]() {
+        superstructure.lift_toggle();
+    });
+    Controller.ButtonUp.pressed([]() {
+        superstructure.load_toggle();
+    });
     
     while (true) {
         update_buttons();
@@ -114,43 +131,17 @@ void opcontrol_normal() {
             superstructure.outtake_middle();
         }
 
-        // === Stepper ===
-        if (a.just_pressed) {
-            superstructure.stepper_press(Superstructure::StepperMiddle);
-        }
-        if (x.just_pressed) {
-            superstructure.stepper_press(Superstructure::StepperTop);
-        }
+        // // === Stepper ===
+        // if (a.just_pressed) {
+        //     superstructure.stepper_press(Superstructure::StepperMiddle);
+        // }
+        // if (x.just_pressed) {
+        //     superstructure.stepper_press(Superstructure::StepperTop);
+        // }
 
         // === Reverse Drive Toggle ===
         if (b.just_pressed) {
             drive_reversed = !drive_reversed;
-        }
-
-        // === Manual Lever ===
-        if (up.just_pressed) {
-            superstructure.manual_lever_up(8.0);
-        } else if (up.just_released && superstructure.get_state() == Superstructure::ManualLever) {
-            superstructure.manual_lever_stop();
-        }
-
-        if (down.just_pressed) {
-            superstructure.manual_lever_down(8.0);
-        } else if (down.just_released && superstructure.get_state() == Superstructure::ManualLever) {
-            superstructure.manual_lever_stop();
-        }
-
-        // === Lever Hold ===
-        if (left_btn.just_pressed) {
-            superstructure.hold_lever(LEVER_HOLD_TARGET_DEG);
-        }
-        if (right_btn.just_pressed) {
-            superstructure.release_lever_hold();
-        }
-
-        // === Lift Toggle ===
-        if (y.just_pressed) {
-            superstructure.lift_toggle();
         }
 
         // === Console Prints ===
@@ -163,7 +154,7 @@ void opcontrol_normal() {
             printf("Lever: %.1f deg, ",
                    superstructure.get_lever_angle());
             printf("Lift: %s",
-                   superstructure.lift_is_extended() ? "Extended, " : "Retracted, ");
+                   superstructure.lift_is_up() ? "Extended, " : "Retracted, ");
             printf("Drive: %s",
                    drive_reversed ? "Reverse" : "Normal");
             printf("\n");
