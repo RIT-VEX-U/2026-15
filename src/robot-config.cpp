@@ -8,24 +8,24 @@ vex::brain Brain;
 
 // ========== Drive ==========
 // Motors - Left (Back to front)
-vex::motor left_1(PORT18, vex::gearSetting::ratio6_1, true);
-vex::motor left_2(PORT17, vex::gearSetting::ratio6_1, false);
-vex::motor left_3(PORT9, vex::gearSetting::ratio6_1, true);
-vex::motor left_4(PORT7, vex::gearSetting::ratio6_1, false);
-vex::motor left_5(PORT8, vex::gearSetting::ratio6_1, true);
+vex::motor left_1(PORT11, vex::gearSetting::ratio6_1, true);
+vex::motor left_2(PORT13, vex::gearSetting::ratio6_1, false);
+vex::motor left_3(PORT15, vex::gearSetting::ratio6_1, true);
+vex::motor left_4(PORT16, vex::gearSetting::ratio6_1, false);
+vex::motor left_5(PORT19, vex::gearSetting::ratio6_1, true);
 vex::motor_group left_motors(left_1, left_2, left_3, left_4, left_5);
 
 // Motors - Right (Back to front)
-vex::motor right_1(PORT19, vex::gearSetting::ratio6_1, false);
-vex::motor right_2(PORT16, vex::gearSetting::ratio6_1, true);
-vex::motor right_3(PORT15, vex::gearSetting::ratio6_1, false);
-vex::motor right_4(PORT13, vex::gearSetting::ratio6_1, true); 
-vex::motor right_5(PORT12, vex::gearSetting::ratio6_1, false);
+vex::motor right_1(PORT18, vex::gearSetting::ratio6_1, false);
+vex::motor right_2(PORT17, vex::gearSetting::ratio6_1, true);
+vex::motor right_3(PORT9, vex::gearSetting::ratio6_1, false);
+vex::motor right_4(PORT7, vex::gearSetting::ratio6_1, true); 
+vex::motor right_5(PORT8, vex::gearSetting::ratio6_1, false);
 vex::motor_group right_motors(right_1, right_2, right_3, right_4, right_5);
 
 // ========== Intake Roller ==========
 vex::motor intake_motor_left(PORT20, vex::gearSetting::ratio6_1, false);
-vex::motor intake_motor_right(PORT21, vex::gearSetting::ratio6_1, true);
+vex::motor intake_motor_right(PORT10, vex::gearSetting::ratio6_1, true);
 vex::motor_group intake_motors(intake_motor_left, intake_motor_right);
 
 // ========== Lever ==========
@@ -36,7 +36,7 @@ vex::rotation lever_rotation_sensor(PORT4);
 
 // ========== IMU ==========
 // TODO: figure out where IMU actually is, or where lever motor left actually is
-// vex::inertial imu(PORT3);
+vex::inertial imu(PORT3);
 
 // ========== Lift Pistons ==========
 // TODO: add other solonoids aka the wing and the hood,
