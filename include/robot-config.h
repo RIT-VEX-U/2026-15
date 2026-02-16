@@ -26,8 +26,10 @@ extern vex::rotation lever_rotation_sensor;
 extern vex::inertial imu;
 
 // Lift pistons (uncomment when added)
-// extern vex::digital_out lift_piston_left;
-// extern vex::digital_out lift_piston_right;
+extern vex::digital_out lift_sol;
+extern vex::digital_out hood_sol;
+extern vex::digital_out load_sol;
+extern vex::digital_out wing_sol;
 
 // === Subsystems ===
 extern Drive drive;

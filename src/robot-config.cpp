@@ -73,31 +73,31 @@ const int SUPER_STEP_DELAY_MS = 300;
 const int SUPER_UPDATE_RATE_MS = 10;
 
 // Without lift pistons for now:
-Superstructure superstructure(
-    intake_motors,
-    lever_motors,
-    lever_rotation_sensor,
-    &lift_sol,
-    &hood_sol,
-    &load_sol,
-    &wing_sol,
-    SUPER_INTAKE_VOLTAGE,
-    SUPER_OUTTAKE_VOLTAGE,
-    SUPER_LEVER_UP_VOLTAGE,
-    SUPER_LEVER_DOWN_VOLTAGE,
-    SUPER_LEVER_UP_POSITION_TOP,
-    SUPER_LEVER_UP_POSITION_MIDDLE,
-    SUPER_LEVER_DOWN_POSITION,
-    SUPER_LEVER_DEADBAND,
-    SUPER_STEPPER_STEPS,
-    SUPER_STEPPER_WINDOW_MS,
-    SUPER_STEP_DELAY_MS,
-    SUPER_UPDATE_RATE_MS,
-    SUPER_LEVER_HOLD_KP,
-    SUPER_LEVER_HOLD_KD,
-    SUPER_LEVER_PID_DEADBAND,
-    SUPER_LEVER_PID_INVERTED
-);
+// Superstructure superstructure(
+//     intake_motors,
+//     lever_motors,
+//     lever_rotation_sensor,
+//     &lift_sol,
+//     &hood_sol,
+//     &load_sol,
+//     &wing_sol,
+//     SUPER_INTAKE_VOLTAGE,
+//     SUPER_OUTTAKE_VOLTAGE,
+//     SUPER_LEVER_UP_VOLTAGE,
+//     SUPER_LEVER_DOWN_VOLTAGE,
+//     SUPER_LEVER_UP_POSITION_TOP,
+//     SUPER_LEVER_UP_POSITION_MIDDLE,
+//     SUPER_LEVER_DOWN_POSITION,
+//     SUPER_LEVER_DEADBAND,
+//     SUPER_STEPPER_STEPS,
+//     SUPER_STEPPER_WINDOW_MS,
+//     SUPER_STEP_DELAY_MS,
+//     SUPER_UPDATE_RATE_MS,
+//     SUPER_LEVER_HOLD_KP,
+//     SUPER_LEVER_HOLD_KD,
+//     SUPER_LEVER_PID_DEADBAND,
+//     SUPER_LEVER_PID_INVERTED
+// );
 
 // With lift pistons (uncomment when added):
 // Superstructure superstructure(
@@ -132,7 +132,7 @@ void robot_init() {
       vexDelay(10);
     }
     printf("IMU Calibrated\n");
-    superstructure.start();
+    // superstructure.start();
 
     init_us = vexSystemHighResTimeGet();
 

@@ -93,7 +93,6 @@ void Superstructure::outtake_middle() {
 }
 
 void Superstructure::outtake_bottom() {
-    set_lift(true);
     state = OuttakingBottom;
 }
 
@@ -379,9 +378,8 @@ int Superstructure::thread_fn(void *ptr) {
             break;
 
         case Intaking:
-            self.intake_motors.spin(vex::forward,
-                                    self.intake_volts,
-                                    vex::volt);
+            self.intake_motors.spin(vex::forward, 127, vex::volt);
+            // self.intake_motors.spin(vex::forward, 600, vex::rpm);
             break;
 
         // OuttakingTop falls through to OuttakingMiddle
