@@ -25,6 +25,8 @@ extern vex::rotation lever_rotation_sensor;
 // Sensors
 extern vex::inertial imu;
 
+extern OdometryLidarWrapper odom;
+
 // Lift pistons (uncomment when added)
 extern vex::digital_out lift_sol;
 extern vex::digital_out hood_sol;

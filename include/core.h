@@ -15,6 +15,7 @@
 #include "core/subsystems/odometry/odometry_base.h"
 #include "core/subsystems/odometry/odometry_nwheel.h"
 #include "core/subsystems/odometry/odometry_tank.h"
+#include "core/subsystems/odometry/odometry_lidar_wrapper.h"
 #include "core/subsystems/screen.h"
 #include "core/subsystems/tank_drive.h"
 

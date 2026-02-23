@@ -1,5 +1,6 @@
 #include "competition/opcontrol.h"
 #include <v5_api.h>
+#include "core/utils/command_structure/auto_command.h"
 #include "vex.h"
 
 #include "core/subsystems/tank_drive.h"
@@ -7,9 +8,10 @@
 // #include "subsystems/superstructure.h"
 #include <cmath>
 
-bool MACROING = false;
-bool drive_reversed = false;
+#include "subsystems/macros.h"
 
+bool drive_reversed = false;
+bool intake_controllable = true;
 
 void opcontrol_normal() {
     Brain.Screen.clearScreen();
@@ -21,10 +23,10 @@ void opcontrol_normal() {
     });
 
     Controller.ButtonY.pressed([]() {
-        wing_sol.set(true);
+        wing_sol = true;
     });
     Controller.ButtonY.released([]() {
-        wing_sol.set(false);
+        wing_sol = false;
     });
 
     Controller.ButtonRight.pressed([]() {
@@ -35,39 +37,9 @@ void opcontrol_normal() {
     });
 
     Controller.ButtonL1.pressed([]() {
-        MACROING = true;
-        uint64_t start_us = vexSystemHighResTimeGet();
-        // open hood
-        hood_sol.set(true);
-        // run intake
-        intake_motors.spin(vex::forward, 12.0, vex::volt);
-
-        // lever up
-        lever_motors.spin(vex::forward, 8.0, vex::volt);
-        while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() < 97.0) {
-            if (vexSystemHighResTimeGet() - start_us > 1000000*0.75) {
-                break;
-            }
-            vexDelay(10);
-        }
-
-        // lever down
-        lever_motors.spin(vex::reverse, 12.0, vex::volt);
-        while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() > 2) {
-            if (vexSystemHighResTimeGet() - start_us > 1000000*1.5) {
-                break;
-            }
-            vexDelay(10);
-        }
-        
-        // close hood
-        hood_sol.set(false);
-
-        // hold lever down
-        lever_motors.spin(vex::reverse, 1.0, vex::volt);
-        intake_motors.stop();
-
-        MACROING = false;
+        intake_controllable = false;
+        score_upper();
+        intake_controllable = true;
     });
     
     while (true) {
@@ -79,7 +51,7 @@ void opcontrol_normal() {
         }
         drive_sys.drive_arcade(forward, turning);
 
-        if (!MACROING) {
+        if (intake_controllable) {
             if (Controller.ButtonR1.pressing()) {
                 intake_motors.spin(vex::forward, 12.0, vex::volt);
             } else if (Controller.ButtonR2.pressing()) {
