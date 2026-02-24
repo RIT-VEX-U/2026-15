@@ -13,13 +13,14 @@
 #include <vex_motorgroup.h>
 #include <vex_task.h>
 
-constexpr double FIELD_OFFSET = 0.5;
+// 140.5in interior
+constexpr double FIELD_OFFSET = 1;
 constexpr double FIELD_SIZE = 142.5;
 constexpr double WALL_MIN = FIELD_OFFSET;
 constexpr double WALL_MAX = FIELD_SIZE - (FIELD_OFFSET * 2);
 
-constexpr double LIDAR_OFFSET_X = -4.5;
-constexpr double LIDAR_OFFSET_Y = 6.2;
+constexpr double LIDAR_OFFSET_X = -2;
+constexpr double LIDAR_OFFSET_Y = 5;
 constexpr double LIDAR_OFFSET_ANGLE = M_PI;
 
 // ughies

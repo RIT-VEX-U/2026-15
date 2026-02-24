@@ -1,6 +1,7 @@
 #include "competition/opcontrol.h"
 #include <v5_api.h>
 #include "core/utils/command_structure/auto_command.h"
+#include "core/utils/command_structure/command_controller.h"
 #include "vex.h"
 
 #include "core/subsystems/tank_drive.h"
@@ -12,11 +13,31 @@
 
 bool drive_reversed = false;
 bool intake_controllable = true;
+bool enable_drive = true;
 
 void opcontrol_normal() {
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("Opcontrol normal");
+
+    Controller.ButtonA.pressed([]() {
+        enable_drive = false;
+        CommandController cc{
+          // drive_sys.TurnDegreesCmd(170, 1)->withTimeout(2),
+          drive_sys.DriveForwardCmd(48, vex::forward, 0.7)->withTimeout(5),
+        };
+        cc.run();
+        enable_drive = true;
+    });
+    Controller.ButtonX.pressed([]() {
+        enable_drive = false;
+        CommandController cc{
+          // drive_sys.TurnDegreesCmd(170, 1)->withTimeout(2),
+          drive_sys.DriveForwardCmd(24, vex::reverse, 1)->withTimeout(5),
+        };
+        cc.run();
+        enable_drive = true;
+    });
 
     Controller.ButtonB.pressed([]() {
         drive_reversed = !drive_reversed;
@@ -43,6 +64,7 @@ void opcontrol_normal() {
     });
     
     while (true) {
+        if (enable_drive) {
         // === Drive ===
         double forward = (double)Controller.Axis3.position() / 100.0;
         double turning = (double)Controller.Axis1.position() / 100.0;
@@ -76,6 +98,7 @@ void opcontrol_normal() {
             //        drive_reversed ? "Reverse" : "Normal");
             // printf("\n");
         // }
+        }
 
         vexDelay(10);
     }

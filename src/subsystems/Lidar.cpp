@@ -101,7 +101,7 @@ namespace lidar_ukf {
     }
     
     UnscentedKalmanFilter<3, 3, 2> createUKF() {
-        EVec<3> state_stddevs{2.0, 2.0, 0.0000001};
+        EVec<3> state_stddevs{2.0, 2.0, 0.00001};
         
         EVec<2> measurement_stddevs{30, 30};
         
@@ -176,7 +176,7 @@ EVec<3> LidarReceiver::get_robot_velocity() {
     
     double vx = (left_vel + right_vel) / 2.0;
     double vy = 0.0;
-    double omega = deg2rad(imu->gyroRate(vex::axisType::yaxis, vex::dps));
+    double omega = deg2rad(-imu->gyroRate(vex::axisType::zaxis, vex::dps));
     
     return EVec<3>{vx, vy, omega};
 }
