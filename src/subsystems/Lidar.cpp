@@ -230,7 +230,7 @@ int lidar_thread(void* ptr) {
                   continue;
                 }
             } else {
-                if (angle > 5 && angle < 170) {
+                if (angle > 10 && angle < 170) {
                   continue;
                 }
             }

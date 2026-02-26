@@ -48,10 +48,10 @@ PID::pid_config_t drive_pid_cfg{
 PID drive_pid(drive_pid_cfg);
 
 PID::pid_config_t turn_pid_cfg{
-  .p = 0.025, // 0.025
+  .p = 0.022, // 0.025
   .i = 0.001,
-  .d = 0.0015, // 0.004
-  .deadband = 3,
+  .d = 0.0018, // 0.004
+  .deadband = 2,
   .on_target_time = 0.1,
   .error_method = PID::ERROR_TYPE::LINEAR,
 };
