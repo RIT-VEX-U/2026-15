@@ -1,5 +1,6 @@
 #include "robot-config.h"
 #include <v5_api.h>
+#include <vex_units.h>
 #include "core/subsystems/odometry/odometry_lidar_wrapper.h"
 #include "subsystems/Lidar.h"
 #include "subsystems/superstructure.h"
@@ -163,7 +164,8 @@ OdometryLidarWrapper odom(&lidar);
  * 0 \_______________/
  *   0               x
 */
-Pose2d right_auto_pose(48, 48, from_degrees(180));
+Pose2d right_auto_pose(18, 54, from_degrees(270));
+Pose2d left_auto_pose(18, 88, from_degrees(90));
 Pose2d &auto_start_pose = right_auto_pose;
 
 void robot_init() {
@@ -180,6 +182,24 @@ void robot_init() {
       vexDelay(10);
     }
     printf("IMU Calibrated\n");
+    double dt = 0.01;
+
+    // SYSID!!!!!
+    // LINEAR QUASISTATIC
+      // for (int i = 0; i < 1200; i++) {
+      //   drive_sys.drive_tank_raw(-i * dt / 12.0, i * dt / 12.0);
+      //   printf("%0.03f, %0.03f, %0.03f\n", i*dt, i*dt, deg2rad(-imu.gyroRate(vex::axisType::zaxis, vex::dps)));
+      //   vexDelay(10);
+      // }
+
+    // LINEAR DYNAMIC
+    //   for (int i = 0; i < 300; i++) {
+    //     drive_sys.drive_tank_raw(-10, 10);
+    //     printf("%0.03f, %0.03f, %0.03f\n", i*dt, 10.0, deg2rad(-imu.gyroRate(vex::axisType::zaxis, vex::dps)));
+    //     vexDelay(10);
+    //   }
+    //
+    // while (true);
 
     std::vector<screen::Page *> pages = {
       new screen::StatsPage({

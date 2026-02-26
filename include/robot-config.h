@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core.h"
+#include "subsystems/Lidar.h"
 #include "vex.h"
 
 #include "subsystems/Drive.h"
@@ -26,6 +27,7 @@ extern vex::rotation lever_rotation_sensor;
 extern vex::inertial imu;
 
 extern OdometryLidarWrapper odom;
+extern LidarReceiver lidar;
 
 // Lift pistons (uncomment when added)
 extern vex::digital_out lift_sol;

@@ -1,4 +1,5 @@
 #include "core.h"
+#include "core/utils/command_structure/auto_command.h"
 #include "vex.h"
 #include "robot-config.h"
 
@@ -40,6 +41,92 @@ void score_upper() {
     intake_motors.stop();
 
     MACROING = false;
+}
+
+void score_upper_slow() {
+    MACROING = true;
+    uint64_t start_us = vexSystemHighResTimeGet();
+    // open hood
+    hood_sol.set(true);
+    // run intake
+    intake_motors.spin(vex::forward, 12.0, vex::volt);
+
+    // lever up
+    lever_motors.spin(vex::forward, 7.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() < 97.0) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*0.75) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    // lever down
+    lever_motors.spin(vex::reverse, 12.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() > 2) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*1.5) {
+            break;
+        }
+        vexDelay(10);
+    }
+    
+    // close hood
+    hood_sol.set(false);
+
+    // hold lever down
+    lever_motors.spin(vex::reverse, 1.0, vex::volt);
+    intake_motors.stop();
+
+    MACROING = false;
+}
+
+void score_lower() {
+    MACROING = true;
+    uint64_t start_us = vexSystemHighResTimeGet();
+    // open hood
+    hood_sol.set(true);
+    // run intake
+    intake_motors.spin(vex::forward, 12.0, vex::volt);
+
+    // lever up
+    lever_motors.spin(vex::forward, 4.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() < 97.0) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*0.75) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    // lever down
+    lever_motors.spin(vex::reverse, 12.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() > 2) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*1.5) {
+            break;
+        }
+        vexDelay(10);
+    }
+    
+    // close hood
+    hood_sol.set(false);
+
+    // hold lever down
+    lever_motors.spin(vex::reverse, 1.0, vex::volt);
+    intake_motors.stop();
+
+    MACROING = false;
+}
+
+AutoCommand *IntakeCmd() {
+  return new FunctionCommand([]() {
+      intake_motors.spin(vex::forward, 12, vex::volt);
+      return true;
+  });
+}
+
+AutoCommand *IntakeStopCmd() {
+  return new FunctionCommand([]() {
+      intake_motors.stop();
+      return true;
+  });
 }
 
 AutoCommand *WingUpCmd() {
@@ -98,7 +185,7 @@ AutoCommand *ScoreUpperCmd() {
   return (new FunctionCommand([]() {
       score_upper();
       return true;
-  }))->withTimeout(2);
+  }));
 }
 
 AutoCommand *DebugCmd() {

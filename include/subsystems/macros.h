@@ -5,6 +5,11 @@
 #include "robot-config.h"
 
 void score_upper();
+void score_upper_slow();
+void score_lower();
+
+AutoCommand *IntakeCmd();
+AutoCommand *IntakeStopCmd();
 
 AutoCommand *WingUpCmd();
 AutoCommand *WingDownCmd();

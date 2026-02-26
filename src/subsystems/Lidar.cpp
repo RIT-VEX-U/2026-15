@@ -225,8 +225,14 @@ int lidar_thread(void* ptr) {
             }
             
             // no inside robot
-            if (angle > 5 && angle < 200) {
-                continue;
+            if (!lift_sol) {
+                if (angle > 80 && angle < 170) {
+                  continue;
+                }
+            } else {
+                if (angle > 5 && angle < 170) {
+                  continue;
+                }
             }
             
             // no fake distances

@@ -62,6 +62,15 @@ void opcontrol_normal() {
         score_upper();
         intake_controllable = true;
     });
+    Controller.ButtonL2.pressed([]() {
+        intake_controllable = false;
+        if (!lift_sol) {
+            score_lower();
+        } else {
+            score_upper_slow();
+        }
+        intake_controllable = true;
+    });
     
     while (true) {
         if (enable_drive) {
