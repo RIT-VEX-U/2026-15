@@ -1,5 +1,6 @@
 #include "competition/opcontrol.h"
 #include <v5_api.h>
+#include <vex_units.h>
 #include "core/utils/command_structure/auto_command.h"
 #include "core/utils/command_structure/command_controller.h"
 #include "vex.h"
@@ -44,14 +45,27 @@ void opcontrol_normal() {
     });
 
     Controller.ButtonY.pressed([]() {
-        wing_sol = true;
+        if (lift_sol) {
+            wing_sol = true;
+        } else {
+            wing_sol = false;
+        }
     });
     Controller.ButtonY.released([]() {
-        wing_sol = false;
+        if (lift_sol) {
+            wing_sol = false;
+        } else {
+            wing_sol = true;
+        }
     });
 
     Controller.ButtonRight.pressed([]() {
         lift_sol = !lift_sol;
+        if (!lift_sol) {
+          wing_sol = false;
+        } else {
+          wing_sol = true;
+        }
     });
     Controller.ButtonUp.pressed([]() {
         load_sol = !load_sol;
@@ -117,5 +131,8 @@ void opcontrol_normal() {
  * Three wire port test (A->F B->G X->H)
  */
 void opcontrol() {
+  BrakeDriveCmd(vex::brakeType::coast);
+  WingUpCmd();
+
   opcontrol_normal();
 }

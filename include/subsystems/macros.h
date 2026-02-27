@@ -26,3 +26,7 @@ AutoCommand *HoodCloseCmd();
 AutoCommand *ScoreUpperCmd();
 
 AutoCommand *DebugCmd();
+
+AutoCommand *DriveTankRawCmd(double left, double right);
+AutoCommand *BrakeDriveCmd(vex::brakeType  brake_type);
+

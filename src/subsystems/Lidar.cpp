@@ -225,8 +225,8 @@ int lidar_thread(void* ptr) {
             }
             
             // no inside robot
-            if (!lift_sol) {
-                if (angle > 80 && angle < 170) {
+            if (lift_sol) {
+                if (angle > 90 && angle < 170) {
                   continue;
                 }
             } else {
