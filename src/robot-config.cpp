@@ -166,7 +166,7 @@ OdometryLidarWrapper odom(&lidar);
 */
 Pose2d right_auto_pose(18, 54, from_degrees(270));
 Pose2d left_auto_pose(18, 88, from_degrees(90));
-Pose2d &auto_start_pose = left_auto_pose;
+Pose2d &auto_start_pose = right_auto_pose;
 
 void robot_init() {
     // while (true) {
@@ -174,7 +174,7 @@ void robot_init() {
     //   vexDelay(100);
     // }
     imu.calibrate();
-    while (!logger.is_connected()) {
+    while (!logger.is_connected() && (vexSystemHighResTimeGet() - init_us) < 5000000) {
       logger.update();
     }
 

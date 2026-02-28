@@ -17,7 +17,7 @@ void red_right();
 void skills();
 
 void autonomous() {
-    red_left();
+    red_right();
 }
 
 PurePursuit::Path left_wing_path() {
