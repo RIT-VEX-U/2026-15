@@ -17,7 +17,7 @@ void red_right();
 void skills();
 
 void autonomous() {
-    red_right();
+    skills();
 }
 
 PurePursuit::Path left_wing_path() {
@@ -73,16 +73,16 @@ PurePursuit::Path left_wing_path() {
     return PurePursuit::Path(pathPoints, 8.000);
 }
 
-// PurePursuit::Path buildPath() {
-//     std::vector<PurePursuit::hermite_point> hermitePoints = {
-//         PurePursuit::hermite_point{23.750, 23.750, 0.000, 35.000},
-//         PurePursuit::hermite_point{38.356, 30.664, 0.349, 32.764},
-//         PurePursuit::hermite_point{58.214, 33.230, 0.000, 20.925},
-//     };
-//
-//     std::vector<Translation2d> smoothed = PurePursuit::smooth_path_hermite(hermitePoints, 20.000);
-//     return PurePursuit::Path(smoothed, 8.000);
-// }
+PurePursuit::Path buildPath() {
+    std::vector<PurePursuit::hermite_point> hermitePoints = {
+        PurePursuit::hermite_point{23.750, 23.750, 0.000, 35.000},
+        PurePursuit::hermite_point{38.356, 30.664, 0.349, 32.764},
+        PurePursuit::hermite_point{58.214, 33.230, 0.000, 20.925},
+    };
+
+    std::vector<Translation2d> smoothed = PurePursuit::smooth_path_hermite(hermitePoints, 20.000);
+    return PurePursuit::Path(smoothed, 8.000);
+}
 
 PurePursuit::Path right_wing_path() {
     std::vector<Translation2d> pathPoints = {
@@ -142,7 +142,7 @@ void red_left() {
       drive_sys.DriveToPointCmd({20, 119}, vex::forward, 1)->withTimeout(1.5),
       IntakeCmd(),
       drive_sys.TurnToHeadingCmd(180, 1)->withTimeout(1),
-      DriveTankRawCmd(0.4, 0.4),
+      DriveTankRawCmd(0.45, 0.45),
 
       // only intake long enough for reds
       new DelayCommand(1300),
@@ -187,7 +187,7 @@ void red_left() {
 void red_right() {
     CommandController cc{
       LoadDownCmd(),
-      drive_sys.DriveToPointCmd({20, 22.5}, vex::forward, 1)->withTimeout(1.5),
+      drive_sys.DriveToPointCmd({20, 24}, vex::forward, 1)->withTimeout(2),
       IntakeCmd(),
       drive_sys.TurnToHeadingCmd(180, 1)->withTimeout(1),
       DriveTankRawCmd(0.4, 0.4),
@@ -195,9 +195,11 @@ void red_right() {
       // only intake long enough for reds
       new DelayCommand(1300),
       (new Parallel({
-        drive_sys.DriveToPointCmd({42, 23.75}, vex::reverse, 1)->withTimeout(2),
+        drive_sys.DriveToPointCmd({44, 23.75}, vex::reverse, 1)->withTimeout(2),
         new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
       }))->withTimeout(1.5),
+      DriveTankRawCmd(-0.2, -0.2),
+      new DelayCommand(100),
       ScoreUpperCmd(),
       new DelayCommand(100),
 
@@ -230,6 +232,75 @@ void red_right() {
 
 void skills() {
     CommandController cc{
+      LoadDownCmd(),
+      drive_sys.DriveToPointCmd({20, 118.25}, vex::forward, 1)->withTimeout(1.5),
+      IntakeCmd(),
+      drive_sys.TurnToHeadingCmd(180, 0.4)->withTimeout(5),
+      DriveTankRawCmd(0.45, 0.45),
+
+      // red matchload
+      new DelayCommand(3000),
+      (new Parallel({
+        drive_sys.DriveToPointCmd({36, 130}, vex::reverse, 1)->withTimeout(2),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
+      }))->withTimeout(1.5),
+      drive_sys.TurnToHeadingCmd(180, 0.4)->withTimeout(5),
+      // line up for long drive to blue
+      drive_sys.DriveToPointCmd({118, 130}, vex::reverse, 0.3)->withTimeout(3),
+      // long drive to blue
+      drive_sys.DriveToPointCmd({118, 120}, vex::reverse, 0.3)->withTimeout(6),
+      // line up to score
+      drive_sys.TurnToHeadingCmd(0, 0.4)->withTimeout(5),
+      DriveTankRawCmd(-0.3, -0.3),
+      new DelayCommand(1000),
+      ScoreUpperCmd(),
+      new DelayCommand(500),
+
+      // back away and align to matchload blue
+      drive_sys.DriveToPointCmd({120, 118}, vex::forward, 1)->withTimeout(2),
+      drive_sys.TurnToHeadingCmd(0, 0.4)->withTimeout(5),
+      LoadDownCmd(),
+      IntakeCmd(),
+      new DelayCommand(500),
+
+      // matchload blue
+      DriveTankRawCmd(0.40, 0.40),
+      new DelayCommand(3000),
+
+      // go to score
+      (new Parallel({
+        drive_sys.DriveToPointCmd({105, 118}, vex::reverse, 1)->withTimeout(2),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
+      }))->withTimeout(1.5),
+      DriveTankRawCmd(-0.3, -0.3),
+      LoadUpCmd(),
+
+      // score
+      new DelayCommand(1000),
+      ScoreUpperSlowCmd(),
+      new DelayCommand(1000),
+
+
+      // align to drive back to red
+      DriveTankRawCmd(0.3, 0.3),
+      new DelayCommand(500),
+      DriveTankRawCmd(0, 0),
+      drive_sys.DriveToPointCmd({118, 130}, vex::forward, 0.3)->withTimeout(5),
+      drive_sys.TurnToHeadingCmd(0, 0.4)->withTimeout(5),
+
+      // drive back to red
+      drive_sys.DriveToPointCmd({36, 130}, vex::reverse, 0.3)->withTimeout(6),
+      // drive to spawn
+      drive_sys.DriveToPointCmd({10, 86}, vex::reverse, 0.25)->withTimeout(5),
+
+      drive_sys.TurnToHeadingCmd(90, 0.4)->withTimeout(5),
+
+      DriveTankRawCmd(-0.3, -0.3),
+      new DelayCommand(1000),
+      DriveTankRawCmd(0, 0),
+
+
+
 
     };
     cc.run();

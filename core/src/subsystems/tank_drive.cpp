@@ -458,7 +458,7 @@ bool TankDrive::drive_to_point(
         drive_pid_rval = feedback.get();
     }
 
-    drive_pid_rval *= cos(deg2rad(delta_heading));
+    drive_pid_rval *= std::max(0.0, cos(deg2rad(delta_heading)));
 
     // Combine the two pid outputs
     double lside = drive_pid_rval + correction;
@@ -601,7 +601,7 @@ bool TankDrive::curve_to_point(
         drive_pid_rval = feedback.get();
     }
 
-    drive_pid_rval *= cos(deg2rad(delta_heading));
+    drive_pid_rval *= std::max(0.0, cos(deg2rad(delta_heading)));
 
     // Combine the two pid outputs
     double lside = drive_pid_rval + correction;
@@ -718,15 +718,20 @@ bool TankDrive::turn_to_heading(double heading_deg, Feedback &feedback, double m
     double delta_heading = OdometryBase::smallest_angle(odometry->get_position().rotation().degrees(), heading_deg);
     feedback.update(-delta_heading);
 
+    printf("%0.03f delta\n", -delta_heading);
+
 
     fflush(stdout);
 
     drive_tank(-feedback.get(), feedback.get());
 
-    // When the robot has reached it's angle, return true.
-    if (feedback.is_on_target()) {
+    // Don't finish the turn until the robot has actually settled instead of
+    // briefly crossing the target while still spinning.
+    constexpr double kTurnSettleAngularSpeedDeg = 15.0;
+    if (feedback.is_on_target() && fabs(odometry->get_angular_speed_deg()) < kTurnSettleAngularSpeedDeg) {
         func_initialized = false;
-        stop();
+        left_motors.stop(vex::brakeType::brake);
+        right_motors.stop(vex::brakeType::brake);
         return true;
     }
     return false;

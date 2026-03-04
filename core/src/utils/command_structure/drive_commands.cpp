@@ -264,7 +264,11 @@ std::string TurnToPointCommand::toString() {
     return returnStr;
 }
 
-void TurnToPointCommand::on_timeout() { drive_sys.stop(); }
+void TurnToPointCommand::on_timeout() {
+    drive_sys.stop();
+    drive_sys.reset_auto();
+    func_initialized = false;
+}
 
 /**
  * Construct a TurnToHeadingCommand Command

@@ -47,12 +47,20 @@ PID::pid_config_t drive_pid_cfg{
 };
 PID drive_pid(drive_pid_cfg);
 
-PID::pid_config_t turn_pid_cfg{
+PID::pid_config_t correction_pid_cfg{
   .p = 0.022, // 0.025
-  .i = 0.001,
-  .d = 0.0018, // 0.004
+  .i = 0.00,
+  .d = 0.002, // 0.004
   .deadband = 2,
   .on_target_time = 0.1,
+  .error_method = PID::ERROR_TYPE::LINEAR,
+};
+PID::pid_config_t turn_pid_cfg{
+  .p = 0.03, // 0.025
+  .i = 0.00,
+  .d = 0.002, // 0.004
+  .deadband = 1,
+  .on_target_time = 0.01,
   .error_method = PID::ERROR_TYPE::LINEAR,
 };
 PID turn_pid(turn_pid_cfg);
@@ -65,7 +73,7 @@ robot_specs_t robot_config = {
     .drive_correction_cutoff = 5,
     .drive_feedback = &drive_pid,
     .turn_feedback = &turn_pid,
-    .correction_pid = turn_pid_cfg,
+    .correction_pid = correction_pid_cfg,
 };
 
 
@@ -166,7 +174,7 @@ OdometryLidarWrapper odom(&lidar);
 */
 Pose2d right_auto_pose(18, 54, from_degrees(270));
 Pose2d left_auto_pose(18, 88, from_degrees(90));
-Pose2d &auto_start_pose = right_auto_pose;
+Pose2d &auto_start_pose = left_auto_pose;
 
 void robot_init() {
     // while (true) {
@@ -212,7 +220,9 @@ void robot_init() {
         {"right2", right_2},
         {"right3", right_3},
         {"right4", right_4},
-        {"right5", right_5}
+        {"right5", right_5},
+        {"leverl", lever_motor_left},
+        {"leverr", lever_motor_right},
       }),
       new screen::PIDPage(turn_pid, "turnpid"),
       new screen::PIDPage(drive_pid, "drivepid"),

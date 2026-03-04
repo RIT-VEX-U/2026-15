@@ -24,6 +24,7 @@ AutoCommand *HoodOpenCmd();
 AutoCommand *HoodCloseCmd();
 
 AutoCommand *ScoreUpperCmd();
+AutoCommand *ScoreUpperSlowCmd();
 
 AutoCommand *DebugCmd();
 

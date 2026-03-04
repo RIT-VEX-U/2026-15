@@ -190,6 +190,13 @@ AutoCommand *ScoreUpperCmd() {
   }));
 }
 
+AutoCommand *ScoreUpperSlowCmd() {
+  return (new FunctionCommand([]() {
+      score_upper_slow();
+      return true;
+  }));
+}
+
 AutoCommand *DebugCmd() {
   return new Async(new FunctionCommand([]() {
         while (true) {
