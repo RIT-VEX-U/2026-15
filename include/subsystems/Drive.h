@@ -10,6 +10,11 @@ public:
     void arcade(double forward, double turn);
     
     void tank(double left, double right);
+    void line(
+      double forward,
+      const Translation2d &line_point,
+      const Rotation2d &line_heading,
+      const TankTrajectoryFollowerConfig &cfg);
 
     void stop();
 

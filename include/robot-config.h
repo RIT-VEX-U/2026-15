@@ -4,6 +4,8 @@
 #include "subsystems/Lidar.h"
 #include "vex.h"
 
+#include "core/utils/controls/state_space/ltv_differential_drive_controller.h"
+
 #include "subsystems/Drive.h"
 #include "subsystems/superstructure.h"
 
@@ -26,7 +28,7 @@ extern vex::rotation lever_rotation_sensor;
 // Sensors
 extern vex::inertial imu;
 
-extern OdometryLidarWrapper odom;
+extern OdometryBase &odom;
 extern LidarReceiver lidar;
 
 // Lift pistons (uncomment when added)
@@ -41,6 +43,10 @@ extern Superstructure superstructure;
 
 // === Configuration ===
 extern robot_specs_t robot_config;
+extern TankDriveModel drive_model;
+extern TankDriveObserver drive_observer;
+extern TankTrajectoryFollowerConfig trajectory_follower_config;
+extern TankTrajectoryFollowerConfig line_cfg;
 
 extern uint64_t init_us;
 

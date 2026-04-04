@@ -35,6 +35,7 @@
 #include "core/utils/controls/pidff.h"
 #include "core/utils/controls/state_space/linear_plant_inversion_feedforward.h"
 #include "core/utils/controls/state_space/linear_quadratic_regulator.h"
+#include "core/utils/controls/state_space/tank_drive_sysid.h"
 #include "core/utils/controls/take_back_half.h"
 #include "core/utils/controls/trapezoid_profile.h"
 #include "core/utils/formatting.h"

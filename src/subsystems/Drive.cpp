@@ -12,6 +12,14 @@ void Drive::tank(double left, double right) {
     drive_sys.drive_tank(left, right, 1, TankDrive::BrakeType::ZeroVelocity);
 }
 
+void Drive::line(
+  double forward,
+  const Translation2d &line_point,
+  const Rotation2d &line_heading,
+  const TankTrajectoryFollowerConfig &cfg) {
+    drive_sys.drive_line(forward, line_point, line_heading, cfg);
+}
+
 void Drive::stop() {
     drive_sys.stop();
 }

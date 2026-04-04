@@ -264,11 +264,7 @@ std::string TurnToPointCommand::toString() {
     return returnStr;
 }
 
-void TurnToPointCommand::on_timeout() {
-    drive_sys.stop();
-    drive_sys.reset_auto();
-    func_initialized = false;
-}
+void TurnToPointCommand::on_timeout() { drive_sys.stop(); }
 
 /**
  * Construct a TurnToHeadingCommand Command
@@ -342,6 +338,36 @@ std::string PurePursuitCommand::toString() {
  * Reset the drive system when it times out
  */
 void PurePursuitCommand::on_timeout() {
+    drive_sys.stop();
+    drive_sys.reset_auto();
+}
+
+FollowTrajectoryCommand::FollowTrajectoryCommand(
+  TankDrive &drive_sys, const Trajectory &trajectory, const TankTrajectoryFollowerConfig &cfg)
+    : drive_sys(drive_sys), trajectory(&trajectory), cfg(cfg) {}
+
+bool FollowTrajectoryCommand::run() { return drive_sys.follow_trajectory(*trajectory, cfg); }
+
+std::string FollowTrajectoryCommand::toString() {
+    return "Following trajectory for " + double_to_string(trajectory->total_time().s()) + " seconds";
+}
+
+void FollowTrajectoryCommand::on_timeout() {
+    drive_sys.stop();
+    drive_sys.reset_auto();
+}
+
+FollowTrajectoryOpenLoopCommand::FollowTrajectoryOpenLoopCommand(
+  TankDrive &drive_sys, const Trajectory &trajectory, bool stop_at_end)
+    : drive_sys(drive_sys), trajectory(&trajectory), stop_at_end(stop_at_end) {}
+
+bool FollowTrajectoryOpenLoopCommand::run() { return drive_sys.follow_trajectory_open_loop(*trajectory, stop_at_end); }
+
+std::string FollowTrajectoryOpenLoopCommand::toString() {
+    return "Following open-loop trajectory for " + double_to_string(trajectory->total_time().s()) + " seconds";
+}
+
+void FollowTrajectoryOpenLoopCommand::on_timeout() {
     drive_sys.stop();
     drive_sys.reset_auto();
 }
