@@ -17,7 +17,9 @@
 #include "subsystems/superstructure.h"
 
 void red_left();
+void red_left_extended();
 void red_right();
+void red_right_extended();
 void awp_right();
 
 void skills();
@@ -27,9 +29,11 @@ void skills_slow();
 void autonomous() {
     // skills();
     // skills_longer();
-    skills_slow();
+    // skills_slow();
     // red_left();
+    red_left_extended();
     // red_right();
+    // red_right_extended();
     // awp_right();
 }
 
@@ -64,42 +68,111 @@ Trajectory make_example_curve() {
   return TrajectoryGenerator::generate_trajectory(points, config);
 }
 
-Trajectory left_drive_to_blue() {
-  
 
+
+
+
+
+Trajectory left_to_loader() {
   std::vector<HermitePoint> points = {
-    HermitePoint::from_heading(23.750, 118.000, M_PI / 4.0, 17.000),
-    {45.000, 130.000, 30.000, 0.000},
-    {90.000, 130.000, 40.000, 0.000},
-    {118.000, 118.000, 20.000, 0.000},
+    {19.000, 87.500, 0.000, 35.000},
+    {12.000, 116.500, -60.000, 0.000},
+  };
+
+  TrajectoryConfig config(80.000_inps, 80.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(22.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(12.000_in);
+  config.add_constraint(CentripetalAccelerationConstraint(100.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
+  return TrajectoryGenerator::generate_trajectory(points, config);
+}
+
+Trajectory left_loader_to_goal() {  
+  std::vector<HermitePoint> points = {
+    {12.000, 117.500, 30.000, 0.000},
+    {32.000, 118.500, 20.000, 0.000},
+    {40.000, 118.500, 20.000, 0.000},
+  };
+
+  TrajectoryConfig config(90.000_inps, 120.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(true);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory left_loader_to_spit() {  
+  std::vector<HermitePoint> points = {
+    {12.000, 116.500, 30.000, 0.000},
+    {32.000, 108.000, 0.000, -30.000},
   };
 
   TrajectoryConfig config(60.000_inps, 60.000_inps2);
   config.set_start_velocity(0.000_inps);
   config.set_end_velocity(0.000_inps);
   config.set_reversed(true);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
 }
 
-Trajectory left_blue_to_red() {
-  
-
+Trajectory left_spit_to_loader() {  
   std::vector<HermitePoint> points = {
-    {119.286, 118.508, -15.000, 15.000},
-    {95.832, 129.500, -42.000, 0.000},
-    {48.640, 129.500, -42.000, 0.000},
-    {24.000, 118.000, -22.000, -22.000},
-    {10.000, 100.000, 0.000, -15.000},
-    {10.000, 88.000, 0.000, -13.000},
+    {32.000, 108.000, 0.000, 30.000},
+    {12.000, 117.500, -30.000, 0.000},
   };
 
-  TrajectoryConfig config(40.000_inps, 30.000_inps2);
+  TrajectoryConfig config(60.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory left_goal_to_loader() {  
+  std::vector<HermitePoint> points = {
+    {40.000, 118.500, -20.000, 0.000},
+    {32.000, 118.500, -20.000, 0.000},
+    {12.000, 117.500, -30.000, 0.000},
+  };
+
+  TrajectoryConfig config(40.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory left_reverse_setup_wing() {
+  std::vector<HermitePoint> points = {
+    {42.000, 119.000, -10.000, 0.000},
+    {20.000, 115.000, -10.000, -10.000},
+  };
+
+  TrajectoryConfig config(80.000_inps, 60.000_inps2);
   config.set_start_velocity(0.000_inps);
   config.set_end_velocity(0.000_inps);
-  config.set_reversed(true);
+  config.set_reversed(false);
   config.set_track_width(12.000_in);
   config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
   config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
@@ -107,18 +180,129 @@ Trajectory left_blue_to_red() {
 }
 
 Trajectory left_wing() {
-  
-
   std::vector<HermitePoint> points = {
-    {24.000, 118.000, 25.000, 25.000},
-    {40.000, 128.500, 10.000, 0.000},
-    {61.000, 128.500, 30.000, 0.000},
+    {20.000, 115.000, 28.000, 28.000},
+    {39.000, 129.000, 20.000, 0.000},
+    {62.000, 129.000, 30.000, 0.000},
+  };
+
+  TrajectoryConfig config(80.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(0.000_inps);
+  config.set_reversed(true);
+  config.set_track_width(12.000_in);
+  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
+  return TrajectoryGenerator::generate_trajectory(points, config);
+}
+
+
+
+
+
+
+
+
+Trajectory right_to_loader() {
+  std::vector<HermitePoint> points = {
+    {19.000, 55.000, 0.000, -35.000},
+    {12, 26, -60, 0.000},
+  };
+
+  TrajectoryConfig config(80.000_inps, 80.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(22.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(12.000_in);
+  config.add_constraint(CentripetalAccelerationConstraint(100.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
+  return TrajectoryGenerator::generate_trajectory(points, config);
+}
+
+Trajectory right_loader_to_goal() {  
+  std::vector<HermitePoint> points = {
+    {12.000, 25.000, 30.000, 0.000},
+    {32.000, 24.000, 20.000, 0.000},
+    {40.000, 24.000, 20.000, 0.000},
+  };
+
+  TrajectoryConfig config(90.000_inps, 120.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(true);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory right_loader_to_spit() {  
+  std::vector<HermitePoint> points = {
+    {12.000, 26.000, 30.000, 0.000},
+    {32.000, 34.500, 0.000, 30.000},
   };
 
   TrajectoryConfig config(60.000_inps, 60.000_inps2);
   config.set_start_velocity(0.000_inps);
   config.set_end_velocity(0.000_inps);
   config.set_reversed(true);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory right_spit_to_loader() {  
+  std::vector<HermitePoint> points = {
+    {32.000, 34.500, 0.000, -30.000},
+    {12.000, 25.000, -30.000, 0.000},
+  };
+
+  TrajectoryConfig config(60.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory right_goal_to_loader() {  
+  std::vector<HermitePoint> points = {
+    {40.000, 23.500, -20.000, 0.000},
+    {32.000, 23.500, -20.000, 0.000},
+    {12.000, 25.000, -30.000, 0.000},
+  };
+
+  TrajectoryConfig config(40.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(20.000_inps);
+  config.set_reversed(false);
+  config.set_track_width(11.8_in);
+  config.add_constraint(CentripetalAccelerationConstraint(180.000_inps2));
+  config.add_constraint(TankVoltageConstraint(0.175_VpInPs, 0.042_VpInPs2, 12.000_V, 12.000_in));
+  Trajectory trajectory = TrajectoryGenerator::generate_trajectory(points, config);
+
+  return trajectory;
+}
+
+Trajectory right_reverse_setup_wing() {
+  std::vector<HermitePoint> points = {
+    {42.000, 24.000, -10.000, 0.000},
+    {20.000, 20.000, -10.000, -10.000},
+  };
+
+  TrajectoryConfig config(80.000_inps, 60.000_inps2);
+  config.set_start_velocity(0.000_inps);
+  config.set_end_velocity(0.000_inps);
+  config.set_reversed(false);
   config.set_track_width(12.000_in);
   config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
   config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
@@ -126,15 +310,13 @@ Trajectory left_wing() {
 }
 
 Trajectory right_wing() {
-  
-
   std::vector<HermitePoint> points = {
-    {24.000, 24.000, 28.000, 28.000},
-    {39.000, 33.500, 10.000, 0.000},
-    {61.000, 33.500, 30.000, 0.000},
+    {20.000, 20.000, 28.000, 28.000},
+    {39.000, 34.000, 20.000, 0.000},
+    {62.000, 34.000, 30.000, 0.000},
   };
 
-  TrajectoryConfig config(40.000_inps, 30.000_inps2);
+  TrajectoryConfig config(80.000_inps, 60.000_inps2);
   config.set_start_velocity(0.000_inps);
   config.set_end_velocity(0.000_inps);
   config.set_reversed(true);
@@ -144,134 +326,11 @@ Trajectory right_wing() {
   return TrajectoryGenerator::generate_trajectory(points, config);
 }
 
-Trajectory left_to_loader() {
-  
 
-  std::vector<HermitePoint> points = {
-    {18.000, 92.000, 0.000, 40.000},
-    {18.000, 117.000, -60.000, 0.000},
-  };
 
-  TrajectoryConfig config(60.000_inps, 60.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(false);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
 
-Trajectory right_to_loader() {
-  
 
-  std::vector<HermitePoint> points = {
-    {18.000, 54.000, 0.000, -40.000},
-    {18.000, 25.000, -60.000, 0.000},
-  };
 
-  TrajectoryConfig config(60.000_inps, 80.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(false);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
-
-Trajectory loader_to_lower_middle() {
-  
-
-  std::vector<HermitePoint> points = {
-    {24.000, 24.000, -50.000, 30.000},
-    {58.000, 60.000, 20.000, 20.000},
-  };
-
-  TrajectoryConfig config(60.000_inps, 80.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(false);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
-
-Trajectory lower_middle_to_wing() {
-  
-
-  std::vector<HermitePoint> points = {
-    {56.000, 56.000, -20.000, -20.000},
-    {38.000, 42.000, -10.000, -10.000},
-    {40.000, 33.000, 10.000, 0.000},
-    {61.000, 33.000, 20.000, 0.000},
-  };
-
-  TrajectoryConfig config(60.000_inps, 80.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(true);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
-
-Trajectory right_to_left_far_side_skills() {
-  
-
-  std::vector<HermitePoint> points = {
-    {118.000, 118.000, 0.000, -50.000},
-    {105.000, 71.250, -12.810, -47.333},
-    {120.000, 22.000, 50.000, 0.000},
-  };
-
-  TrajectoryConfig config(60.000_inps, 60.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(false);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
-
-Trajectory far_side_loader_to_middle() {
-  
-
-  std::vector<HermitePoint> points = {
-    {128.000, 15.000, -50.000, 0.000},
-    {81.000, 60.000, -20.000, 20.000},
-  };
-
-  TrajectoryConfig config(60.000_inps, 60.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(true);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
-
-Trajectory return_to_far_left() {
-  
-
-  std::vector<HermitePoint> points = {
-    {99.661, 42.164, 23.544, 44.845},
-    {118.000, 118.000, -20.000, 20.000},
-  };
-
-  TrajectoryConfig config(60.000_inps, 60.000_inps2);
-  config.set_start_velocity(0.000_inps);
-  config.set_end_velocity(0.000_inps);
-  config.set_reversed(false);
-  config.set_track_width(12.000_in);
-  config.add_constraint(CentripetalAccelerationConstraint(120.000_inps2));
-  config.add_constraint(TankVoltageConstraint(0.118581_VpInps, 0.016758_VpInps2, 12.000_V, 12.000_in));
-  return TrajectoryGenerator::generate_trajectory(points, config);
-}
 
 void run_trajectory_test() {
     Trajectory trajectory = make_example_curve();
@@ -284,355 +343,220 @@ void run_trajectory_test() {
     cc.run();
 }
 
+void awp_right() {}
+
+void red_right() {
+    printf("red right\n");
+
+    Trajectory traj_right_to_loader = right_to_loader();
+    Trajectory traj_right_wing = right_wing();
+    Trajectory traj_right_reverse_setup_wing = right_reverse_setup_wing();
+    Trajectory traj_right_loader_to_goal = right_loader_to_goal();
+
+    Trajectory grouped_wing = traj_right_reverse_setup_wing + traj_right_wing;
+
+    CommandController cc{
+      new Parallel({
+        drive_sys.FollowTrajectoryCmd(traj_right_to_loader, trajectory_follower_config)->withTimeout(10),
+        LoadDownCmd(),
+        IntakeCmd(),
+      }),
+
+      DriveTankRawCmd(0.1, 0.1),
+      new DelayCommand(400),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
+
+      (new Parallel({
+        drive_sys.FollowTrajectoryCmd(traj_right_loader_to_goal, trajectory_follower_config),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(700), new Async(ScoreUpperCmd()), WingDownCmd(), IntakeStopCmd()}),
+      }))->withTimeout(3.5),
+      DriveTankRawCmd(0, 0),
+
+      new Parallel({
+        drive_sys.FollowTrajectoryCmd(grouped_wing, trajectory_follower_config)->withTimeout(10),
+        WingDownCmd(),
+      }),
+
+      BrakeDriveCmd(vex::brakeType::hold),
+    };
+    cc.run();
+}
+
 void red_left() {
     printf("red left\n");
 
     Trajectory traj_left_to_loader = left_to_loader();
     Trajectory traj_left_wing = left_wing();
+    Trajectory traj_left_reverse_setup_wing = left_reverse_setup_wing();
+    Trajectory traj_left_loader_to_goal = left_loader_to_goal();
+
+    Trajectory grouped_wing = traj_left_reverse_setup_wing + traj_left_wing;
 
     CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_left_to_loader, trajectory_follower_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.35, 0.35),
-      new DelayCommand(1100),
-      DriveTankRawCmd(0, 0),
-      new DelayCommand(200),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({42, 118}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      DriveTankRawCmd(-0.2, -0.2),
-      ScoreUpperCmd(),
-      new DelayCommand(100),
-      IntakeStopCmd(),
-
-      drive_sys.DriveToPointCmd({24, 118}, vex::forward, 1)->withTimeout(1),
-      WingDownCmd(),
-
-      drive_sys.FollowTrajectoryCmd(traj_left_wing, trajectory_follower_config)->withTimeout(10),
-
-      BrakeDriveCmd(vex::brakeType::hold),
-    };
-    cc.run();
-}
-
-void awp_right() {
-    printf("awp right\n");
-
-    TankTrajectoryFollowerConfig skills_config = trajectory_follower_config;
-    skills_config.q_tolerances = {0.5, 0.5, 1, 1, 1};
-
-    Trajectory traj_right_to_loader = right_to_loader();
-    Trajectory traj_loader_to_lower_middle = loader_to_lower_middle();
-    Trajectory traj_lower_middle_to_wing = lower_middle_to_wing();
-
-    CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_right_to_loader, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.35, 0.35),
-      new DelayCommand(1200),
-      DriveTankRawCmd(0, 0),
-      new DelayCommand(200),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({42, 23.75}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      DriveTankRawCmd(-0.2, -0.2),
-      ScoreUpperCmd(45),
-      new DelayCommand(100),
-      IntakeStopCmd(),
-      odom.SetPositionCmd(Pose2d(45, 23.75, from_degrees(180))),
-      new DelayCommand(750),
-
-      drive_sys.DriveToPointCmd({28, 23.75}, vex::forward, 1)->withTimeout(1),
-      drive_sys.TurnToHeadingCmd(Rotation2d(-60, 30).wrapped_degrees_360(), 0.5)->withTimeout(1),
-
-      drive_sys.FollowTrajectoryCmd(traj_loader_to_lower_middle, skills_config)->withTimeout(10),
-      OuttakeCmd(),
-      new DelayCommand(1000),
-      IntakeStopCmd(),
-
-      WingDownCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_lower_middle_to_wing, skills_config)->withTimeout(10),
-
-      BrakeDriveCmd(vex::brakeType::hold),
-    };
-    cc.run();
-}
-
-void red_right() {
-    printf("red left\n");
-
-    TankTrajectoryFollowerConfig skills_config = trajectory_follower_config;
-    skills_config.q_tolerances = {0.5, 0.5, 0.9, 1, 1};
-
-    Trajectory traj_right_to_loader = right_to_loader();
-    Trajectory traj_right_wing = right_wing();
-
-    CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_right_to_loader, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.35, 0.35),
-      new DelayCommand(1100),
-      DriveTankRawCmd(0, 0),
-      new DelayCommand(200),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({42, 23.75}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      DriveTankRawCmd(-0.2, -0.2),
-      ScoreUpperCmd(),
-      new DelayCommand(100),
-      IntakeStopCmd(),
-
-      drive_sys.DriveToPointCmd({22, 22}, vex::forward, 1)->withTimeout(1),
-      WingDownCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_right_wing, skills_config)->withTimeout(10),
-
-      BrakeDriveCmd(vex::brakeType::hold),
-    };
-    cc.run();
-}
-
-void skills() {
-    TankTrajectoryFollowerConfig skills_config = trajectory_follower_config;
-    skills_config.q_tolerances = {0.5, 0.5, 1, 1, 1};
-
-    Trajectory traj_left_to_loader = left_to_loader();
-    Trajectory traj_left_drive_to_blue = left_drive_to_blue();
-    Trajectory traj_left_blue_to_red = left_blue_to_red();
-
-    CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_left_to_loader, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.4, 0.4),
-      new DelayCommand(4000),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({24, 118}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
-      }))->withTimeout(1.5),
-
-      drive_sys.TurnToHeadingCmd(-135, 0.6)->withTimeout(1),
-      drive_sys.FollowTrajectoryCmd(traj_left_drive_to_blue, skills_config)->withTimeout(10),
-
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(1),
-      HoodOpenCmd(),
-      drive_sys.DriveToPointCmd({102, 118}, vex::reverse, 1)->withTimeout(2),
-      DriveTankRawCmd(-0.3, -0.3),
-      new DelayCommand(1000),
-      ScoreUpperCmd(),
-      new DelayCommand(500),
-
-      drive_sys.DriveToPointCmd({124, 117}, vex::forward, 1)->withTimeout(2),
-      LoadDownCmd(),
-      IntakeCmd(),
-      new DelayCommand(500),
-
-      DriveTankRawCmd(0.40, 0.40),
-      new DelayCommand(4000),
-
-      (new Parallel({
-        drive_sys.DriveToPointCmd({102, 118}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      DriveTankRawCmd(-0.3, -0.3),
-      LoadUpCmd(),
-      new DelayCommand(250),
-      HoodOpenCmd(),
-
-      new DelayCommand(750),
-      ScoreUpperSlowCmd(),
-      new DelayCommand(1000),
-
-      DriveTankRawCmd(0.3, 0.3),
-      new DelayCommand(500),
-      DriveTankRawCmd(0, 0),
-      drive_sys.DriveToPointCmd({118, 118}, vex::forward, 0.5)->withTimeout(5),
-      drive_sys.TurnToHeadingCmd(-45, 0.6)->withTimeout(1),
-
-      drive_sys.FollowTrajectoryCmd(traj_left_blue_to_red, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(-0.35, -0.35),
-    };
-    cc.run();
-}
-
-void skills_longer() {
-    TankTrajectoryFollowerConfig skills_config = trajectory_follower_config;
-    skills_config.q_tolerances = {0.5, 0.5, 1, 1, 1};
-
-    Trajectory traj_left_to_loader = left_to_loader();
-    Trajectory traj_left_drive_to_blue = left_drive_to_blue();
-    Trajectory traj_right_to_left_far_side = right_to_left_far_side_skills();
-    Trajectory traj_far_side_loader_to_middle = far_side_loader_to_middle();
-    Trajectory traj_return_to_far_left = return_to_far_left();
-    Trajectory traj_left_blue_to_red = left_blue_to_red();
-
-    CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_left_to_loader, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.4, 0.4),
-      new DelayCommand(4000),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({24, 118}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
-      }))->withTimeout(1.5),
-      odom.SetPositionCmd(Pose2d(14, 118, from_degrees(180))),
-
-      drive_sys.TurnToHeadingCmd(-135, 0.6)->withTimeout(1),
-      drive_sys.FollowTrajectoryCmd(traj_left_drive_to_blue, skills_config)->withTimeout(10),
-
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(0.5),
-      drive_sys.DriveToPointCmd({105, 117}, vex::reverse, 1)->withTimeout(2),
-      HoodOpenCmd(),
-      DriveTankRawCmd(-0.3, -0.3),
-      new DelayCommand(1000),
-      ScoreUpperCmd(),
-      odom.SetPositionCmd(Pose2d(105, 118, from_degrees(0))),
-      new DelayCommand(500),
-
-      drive_sys.DriveToPointCmd({124, 117}, vex::forward, 1)->withTimeout(1),
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(0.5),
-      LoadDownCmd(),
-      IntakeCmd(),
-      new DelayCommand(500),
-
-      DriveTankRawCmd(0.40, 0.40),
-      new DelayCommand(4000),
-
-      (new Parallel({
-        drive_sys.DriveToPointCmd({102, 117}, vex::reverse, 1)->withTimeout(1.5),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      drive_sys.TurnToHeadingCmd(0, 0.5)->withTimeout(0.7),
-      HoodOpenCmd(),
-      DriveTankRawCmd(-0.3, -0.3),
-      LoadUpCmd(),
-      new DelayCommand(250),
-
-      new DelayCommand(750),
-      HoodOpenCmd(),
-      ScoreUpperSlowCmd(),
-      odom.SetPositionCmd(Pose2d(105, 118, from_degrees(0))),
-      new DelayCommand(1000),
-
-      DriveTankRawCmd(0.3, 0.3),
-      new DelayCommand(500),
-      DriveTankRawCmd(0, 0),
-      drive_sys.DriveToPointCmd({118, 118}, vex::forward, 0.5)->withTimeout(1),
-      drive_sys.TurnToHeadingCmd(-90, 0.6)->withTimeout(0.7),
-
-      drive_sys.FollowTrajectoryCmd(traj_right_to_left_far_side, skills_config)->withTimeout(10),
-
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(0.7),
-      LoadDownCmd(),
-      IntakeCmd(),
-      new DelayCommand(500),
-      DriveTankRawCmd(0.40, 0.40),
-      new DelayCommand(3000),
-      odom.SetPositionCmd(Pose2d(132, 24, from_degrees(0))),
-      new DelayCommand(1000),
-
       new Parallel({
-        drive_sys.FollowTrajectoryCmd(traj_far_side_loader_to_middle, skills_config)->withTimeout(10),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), WingDownCmd(), LiftDownCmd(), IntakeStopCmd()}),
+        drive_sys.FollowTrajectoryCmd(traj_left_to_loader, trajectory_follower_config)->withTimeout(10),
+        LoadDownCmd(),
+        IntakeCmd(),
       }),
 
-      new DelayCommand(250),
-      ScoreLowerCmd(),
-      new DelayCommand(500),
+      DriveTankRawCmd(0.1, 0.1),
+      new DelayCommand(400),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
+      (new Parallel({
+        drive_sys.FollowTrajectoryCmd(traj_left_loader_to_goal, trajectory_follower_config),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(700), new Async(ScoreUpperCmd()), WingDownCmd(), IntakeStopCmd()}),
+      }))->withTimeout(3.5),
+      DriveTankRawCmd(0, 0),
 
-      DriveTankRawCmd(0.3, 0.3),
-      LiftUpCmd(),
-      new DelayCommand(100),
+      new Parallel({
+        drive_sys.FollowTrajectoryCmd(grouped_wing, trajectory_follower_config)->withTimeout(10),
+        WingDownCmd(),
+      }),
 
-      drive_sys.FollowTrajectoryCmd(traj_return_to_far_left, skills_config)->withTimeout(10),
-      drive_sys.TurnToHeadingCmd(-45, 0.5)->withTimeout(1),
-
-      drive_sys.FollowTrajectoryCmd(traj_left_blue_to_red, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(-0.45, -0.45),
+      BrakeDriveCmd(vex::brakeType::hold),
     };
     cc.run();
 }
 
-void skills_slow() {
-    TankTrajectoryFollowerConfig skills_config = trajectory_follower_config;
-    skills_config.q_tolerances = {0.5, 0.5, 1, 1, 1};
+void red_left_extended() {
+    printf("red left\n");
 
     Trajectory traj_left_to_loader = left_to_loader();
-    Trajectory traj_left_drive_to_blue = left_drive_to_blue();
-    Trajectory traj_left_blue_to_red = left_blue_to_red();
+    Trajectory traj_left_loader_to_goal = left_loader_to_goal();
+    Trajectory traj_left_goal_to_loader = left_goal_to_loader();
+    Trajectory traj_left_loader_to_spit = left_loader_to_spit();
+    Trajectory traj_left_spit_to_loader = left_spit_to_loader();
+    Trajectory traj_left_wing = left_wing();
+    Trajectory traj_left_reverse_setup_wing = left_reverse_setup_wing();
+
+    Trajectory grouped_spit = traj_left_loader_to_spit + traj_left_spit_to_loader;
+    Trajectory grouped_wing = traj_left_reverse_setup_wing + traj_left_wing;
 
     CommandController cc{
-      LoadDownCmd(),
-      IntakeCmd(),
-      drive_sys.FollowTrajectoryCmd(traj_left_to_loader, skills_config)->withTimeout(10),
-
-      DriveTankRawCmd(0.4, 0.4),
-      new DelayCommand(4000),
-      (new Parallel({
-        drive_sys.DriveToPointCmd({24, 118}, vex::reverse, 1)->withTimeout(2),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd()}),
-      }))->withTimeout(1.5),
-      odom.SetPositionCmd(Pose2d(14, 118, from_degrees(180))),
-
-      drive_sys.TurnToHeadingCmd(-135, 0.6)->withTimeout(1),
-      drive_sys.FollowTrajectoryCmd(traj_left_drive_to_blue, skills_config)->withTimeout(10),
-
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(3),
-      drive_sys.DriveToPointCmd({105, 118}, vex::reverse, 1)->withTimeout(2),
-      HoodOpenCmd(),
-      DriveTankRawCmd(-0.3, -0.3),
-      new DelayCommand(1000),
-      ScoreUpperCmd(),
-      odom.SetPositionCmd(Pose2d(105, 118, from_degrees(0))),
-      new DelayCommand(500),
-
-      drive_sys.DriveToPointCmd({124, 118.25}, vex::forward, 1)->withTimeout(1),
-      drive_sys.TurnToHeadingCmd(0, 0.6)->withTimeout(2),
-      LoadDownCmd(),
-      IntakeCmd(),
-      new DelayCommand(500),
-
-      DriveTankRawCmd(0.40, 0.40),
-      new DelayCommand(4000),
-
-      (new Parallel({
-        drive_sys.DriveToPointCmd({102, 117.5}, vex::reverse, 1)->withTimeout(3),
-        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), IntakeStopCmd(), HoodOpenCmd()}),
-      }))->withTimeout(1.5),
-      drive_sys.TurnToHeadingCmd(0, 0.5)->withTimeout(2),
-      HoodOpenCmd(),
-      DriveTankRawCmd(-0.3, -0.3),
-      LoadUpCmd(),
-      new DelayCommand(250),
-
-      new DelayCommand(750),
-      HoodOpenCmd(),
-      ScoreUpperSlowCmd(),
-      odom.SetPositionCmd(Pose2d(105, 118, from_degrees(0))),
-      new DelayCommand(1000),
+      new Parallel({
+        drive_sys.FollowTrajectoryCmd(traj_left_to_loader, trajectory_follower_config)->withTimeout(10),
+        LoadDownCmd(),
+        IntakeCmd(),
+      }),
 
       DriveTankRawCmd(0.3, 0.3),
-      new DelayCommand(500),
+      new DelayCommand(400),
       DriveTankRawCmd(0, 0),
-      drive_sys.DriveToPointCmd({118, 118}, vex::forward, 0.5)->withTimeout(3),
-      drive_sys.TurnToHeadingCmd(-45, 0.6)->withTimeout(1.5),
+      (new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_left_loader_to_goal, trajectory_follower_config), DriveTankRawCmd(-0.5, -0.5)}),
+        new InOrder({new DelayCommand(100), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(1000), new Async(new InOrder({ScoreUpperCmd(), IntakeCmd()})), new DelayCommand(100), WingDownCmd()}),
+      }))->withTimeout(3.5),
+      new DelayCommand(600),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
 
-      drive_sys.FollowTrajectoryCmd(traj_left_blue_to_red, skills_config)->withTimeout(10),
+      new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_left_goal_to_loader, trajectory_follower_config), DriveTankRawCmd(0.3, 0.3)}),
+        LoadDownCmd(),
+        IntakeCmd(),
+      }),
+      IntakeCmd(),
+      DriveTankRawCmd(0.3, 0.3),
+      new DelayCommand(1000),
+      DriveTankRawCmd(0, 0),
+      IntakeCmd(),
 
-      DriveTankRawCmd(-0.55, -0.55),
+
+      new Parallel({
+          new InOrder({drive_sys.FollowTrajectoryCmd(grouped_spit, trajectory_follower_config), DriveTankRawCmd(0.3, 0.3)}),
+          new InOrder({new DelayCommand(900), ScoreUpperSlowCmd(), IntakeCmd()}),
+      }),
+      new DelayCommand(1000),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(100),
+
+
+      (new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_left_loader_to_goal, trajectory_follower_config), DriveTankRawCmd(-0.5, -0.5)}),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(1000), new Async(ScoreUpperCmd()), new DelayCommand(100), WingDownCmd()}),
+      }))->withTimeout(3.5),
+      new DelayCommand(600),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
+
+      new Parallel({
+        WingDownCmd(),
+        drive_sys.FollowTrajectoryCmd(grouped_wing, trajectory_follower_config)->withTimeout(10),
+      }),
+
+      BrakeDriveCmd(vex::brakeType::hold),
+    };
+    cc.run();
+}
+
+void red_right_extended() {
+    printf("red right\n");
+
+    Trajectory traj_right_to_loader = right_to_loader();
+    Trajectory traj_right_loader_to_goal = right_loader_to_goal();
+    Trajectory traj_right_goal_to_loader = right_goal_to_loader();
+    Trajectory traj_right_loader_to_spit = right_loader_to_spit();
+    Trajectory traj_right_spit_to_loader = right_spit_to_loader();
+    Trajectory traj_right_wing = right_wing();
+    Trajectory traj_right_reverse_setup_wing = right_reverse_setup_wing();
+
+    Trajectory grouped_spit = traj_right_loader_to_spit + traj_right_spit_to_loader;
+    Trajectory grouped_wing = traj_right_reverse_setup_wing + traj_right_wing;
+
+    CommandController cc{
+      new Parallel({
+        drive_sys.FollowTrajectoryCmd(traj_right_to_loader, trajectory_follower_config)->withTimeout(10),
+        LoadDownCmd(),
+        IntakeCmd(),
+      }),
+
+      DriveTankRawCmd(0.3, 0.3),
+      new DelayCommand(400),
+      DriveTankRawCmd(0, 0),
+      (new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_right_loader_to_goal, trajectory_follower_config), DriveTankRawCmd(-0.5, -0.5)}),
+        new InOrder({new DelayCommand(100), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(1000), new Async(new InOrder({ScoreUpperCmd(), IntakeCmd()})), new DelayCommand(100), WingDownCmd()}),
+      }))->withTimeout(3.5),
+      new DelayCommand(600),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
+
+      new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_right_goal_to_loader, trajectory_follower_config), DriveTankRawCmd(0.3, 0.3)}),
+        LoadDownCmd(),
+        IntakeCmd(),
+      }),
+      IntakeCmd(),
+      DriveTankRawCmd(0.3, 0.3),
+      new DelayCommand(1000),
+      DriveTankRawCmd(0, 0),
+      IntakeCmd(),
+
+      new Parallel({
+          new InOrder({drive_sys.FollowTrajectoryCmd(grouped_spit, trajectory_follower_config), DriveTankRawCmd(0.3, 0.3)}),
+          new InOrder({new DelayCommand(900), ScoreUpperSlowCmd(), IntakeCmd()}),
+      }),
+      new DelayCommand(1000),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(100),
+
+
+      (new Parallel({
+        new InOrder({drive_sys.FollowTrajectoryCmd(traj_right_loader_to_goal, trajectory_follower_config), DriveTankRawCmd(-0.5, -0.5)}),
+        new InOrder({new DelayCommand(100), LoadUpCmd(), LiftUpCmd(), HoodOpenCmd(), new DelayCommand(1000), new Async(ScoreUpperCmd()), new DelayCommand(100), WingDownCmd()}),
+      }))->withTimeout(3.5),
+      new DelayCommand(600),
+      DriveTankRawCmd(0, 0),
+      new DelayCommand(200),
+
+      new Parallel({
+        WingDownCmd(),
+        drive_sys.FollowTrajectoryCmd(grouped_wing, trajectory_follower_config)->withTimeout(10),
+      }),
+
+      BrakeDriveCmd(vex::brakeType::hold),
     };
     cc.run();
 }

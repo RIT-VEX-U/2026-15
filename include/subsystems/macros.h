@@ -6,6 +6,7 @@
 
 void score_upper_fast(double stop_angle_up = 97);
 void score_upper(double stop_angle_up = 97);
+void score_upper_twice(double stop_angle_up = 97);
 void score_upper_fast_driver(double stop_angle_up = 97);
 void score_upper_driver(double stop_angle_up = 97);
 void score_upper_slow_driver(double stop_angle_up = 97);
@@ -32,6 +33,7 @@ AutoCommand *HoodOpenCmd();
 AutoCommand *HoodCloseCmd();
 
 AutoCommand *ScoreUpperCmd(double stop_angle_up = 97);
+AutoCommand *ScoreUpperTwiceCmd(double stop_angle_up = 97);
 AutoCommand *ScoreUpperSlowCmd(double stop_angle_up = 97);
 AutoCommand *ScoreLowerCmd();
 

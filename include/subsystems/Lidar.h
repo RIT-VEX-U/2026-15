@@ -78,6 +78,10 @@ private:
     bool use_observer_velocity_ = true;
     int observer_velocity_bad_cycles_ = 0;
     int observer_velocity_good_cycles_ = 0;
+    bool suppress_translation_ = false;
+    uint64_t translation_window_start_us_ = 0;
+    Pose2d translation_window_start_pose_;
+    double translation_window_wheel_distance_in_ = 0.0;
     
     // x [x, y, theta], u [vx, vy, omega], y [distance, lidar_angle]
     UnscentedKalmanFilter<3, 3, 2> ukf_;

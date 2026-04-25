@@ -15,6 +15,12 @@ namespace {
         while (angle < -M_PI) angle += 2.0 * M_PI;
         return angle;
     }
+
+    constexpr double kTranslationSuppressionWindowS = 0.04;
+    constexpr double kTranslationSuppressionMinWheelSpeedInps = 8.0;
+    constexpr double kTranslationSuppressionMinWheelDistanceIn = 2.0;
+    constexpr double kTranslationSuppressionMaxPoseDistanceIn = 0.75;
+    constexpr double kTranslationSuppressionReleasePoseDistanceIn = 1.25;
 }
 
 namespace lidar_ukf {
@@ -101,9 +107,9 @@ namespace lidar_ukf {
     }
     
     UnscentedKalmanFilter<3, 3, 2> createUKF() {
-        EVec<3> state_stddevs{2.0, 2.0, 0.00001};
+        EVec<3> state_stddevs{2.0, 2.0, 0.01};
         
-        EVec<2> measurement_stddevs{30, 30};
+        EVec<2> measurement_stddevs{20, 20};
         
         return UnscentedKalmanFilter<3, 3, 2>(
             dynamics, measurement, RK2_with_input<3, 3>,
@@ -168,6 +174,10 @@ void LidarReceiver::set_pose(const Pose2d& pose) {
     state << pose.x(), pose.y(), pose.rotation().radians();
     ukf_.set_xhat(state);
     pose_out_ = pose;
+    suppress_translation_ = false;
+    translation_window_start_us_ = 0;
+    translation_window_start_pose_ = pose;
+    translation_window_wheel_distance_in_ = 0.0;
 }
 
 void LidarReceiver::reset_ukf(const Pose2d& initial_pose) {
@@ -228,6 +238,9 @@ EVec<3> LidarReceiver::get_robot_velocity() {
     }
     
     double vx = (left_vel + right_vel) / 2.0;
+    if (suppress_translation_) {
+        vx = 0.0;
+    }
     double vy = 0.0;
     double omega = deg2rad(-imu->gyroRate(vex::axisType::zaxis, vex::dps));
     
@@ -252,6 +265,45 @@ int lidar_thread(void* ptr) {
             obj.ukf_.predict(velocity, dt_s);
             obj.last_predict_us_ = now_us;
             obj.pose_out_ = obj.get_internal_pose();
+
+            const double left_rpm = obj.left_motors->velocity(vex::velocityUnits::rpm);
+            const double right_rpm = obj.right_motors->velocity(vex::velocityUnits::rpm);
+            const double wheel_circumference = M_PI * obj.config->odom_wheel_diam;
+            const double raw_left_vel = (left_rpm / 60.0) * wheel_circumference / obj.config->odom_gear_ratio;
+            const double raw_right_vel = (right_rpm / 60.0) * wheel_circumference / obj.config->odom_gear_ratio;
+            const double raw_forward_speed = 0.5 * (raw_left_vel + raw_right_vel);
+            const double raw_avg_speed = 0.5 * (std::abs(raw_left_vel) + std::abs(raw_right_vel));
+
+            if (obj.translation_window_start_us_ == 0) {
+                obj.translation_window_start_us_ = now_us;
+                obj.translation_window_start_pose_ = obj.get_internal_pose();
+                obj.translation_window_wheel_distance_in_ = 0.0;
+            }
+
+            obj.translation_window_wheel_distance_in_ += std::abs(raw_forward_speed) * dt_s;
+
+            const double translation_window_dt_s =
+                (now_us - obj.translation_window_start_us_) / 1.0e6;
+            if (translation_window_dt_s >= kTranslationSuppressionWindowS) {
+                const Pose2d current_pose = obj.get_internal_pose();
+                const double pose_translation_in =
+                    current_pose.translation().distance(obj.translation_window_start_pose_.translation());
+                const bool strong_translation_claim =
+                    raw_avg_speed > kTranslationSuppressionMinWheelSpeedInps &&
+                    obj.translation_window_wheel_distance_in_ > kTranslationSuppressionMinWheelDistanceIn;
+                const bool pose_is_stationary = pose_translation_in < kTranslationSuppressionMaxPoseDistanceIn;
+                const bool pose_is_moving_enough = pose_translation_in > kTranslationSuppressionReleasePoseDistanceIn;
+
+                if (strong_translation_claim && pose_is_stationary) {
+                    obj.suppress_translation_ = true;
+                } else if (!strong_translation_claim || pose_is_moving_enough) {
+                    obj.suppress_translation_ = false;
+                }
+
+                obj.translation_window_start_us_ = now_us;
+                obj.translation_window_start_pose_ = current_pose;
+                obj.translation_window_wheel_distance_in_ = 0.0;
+            }
         }
         
         // Poll for incoming lidar data
@@ -262,6 +314,8 @@ int lidar_thread(void* ptr) {
             if (packet.size() != 4) {
                 continue;
             }
+
+            // printf("recv\n");
             
             uint16_t angle_q6;
             uint16_t dist;
@@ -271,21 +325,15 @@ int lidar_thread(void* ptr) {
             double angle = fmod(angle_q6 * 0.015625, 360);
             angle = wrap_degrees_360(-angle);
             double distance = (dist / 25.4);
-            
+
             // no fake angles
             if (angle > 360 || angle < 0) {
                 continue;
             }
             
             // no inside robot
-            if (lift_sol) {
-                if (angle > 90 && angle < 170) {
-                  continue;
-                }
-            } else {
-                if (angle > 5 && angle < 210) {
-                  continue;
-                }
+            if (angle > 5 && angle < 200) {
+                continue;
             }
             
             // no fake distances

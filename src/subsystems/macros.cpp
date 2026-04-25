@@ -124,6 +124,54 @@ void score_upper(double stop_angle_up) {
     MACROING = false;
 }
 
+void score_upper_twice(double stop_angle_up) {
+    MACROING = true;
+    uint64_t start_us = vexSystemHighResTimeGet();
+    // open hood
+    hood_sol.set(true);
+    // run intake
+    intake_motors.spin(vex::forward, 12.0, vex::volt);
+
+    // lever up
+    lever_motors.spin(vex::forward, 8.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() < stop_angle_up) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*0.75) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    // lever down
+    lever_motors.spin(vex::reverse, 12.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() > 2) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*1.5) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    // lever up
+    lever_motors.spin(vex::forward, 8.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() < stop_angle_up) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*0.75) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    // lever down
+    lever_motors.spin(vex::reverse, 12.0, vex::volt);
+    while (from_degrees(lever_rotation_sensor.position(vex::deg)).wrapped_degrees_180() > 2) {
+        if (vexSystemHighResTimeGet() - start_us > 1000000*1.5) {
+            break;
+        }
+        vexDelay(10);
+    }
+
+    finish_score_macro_with_delayed_hood_close(1000000);
+
+    MACROING = false;
+}
 void score_upper_driver(double stop_angle_up) {
     score_driver_step(stop_angle_up, 8.0);
 }
@@ -312,6 +360,13 @@ AutoCommand *HoodCloseCmd() {
 AutoCommand *ScoreUpperCmd(double stop_angle_up) {
   return (new FunctionCommand([stop_angle_up]() {
       score_upper(stop_angle_up);
+      return true;
+  }));
+}
+
+AutoCommand *ScoreUpperTwiceCmd(double stop_angle_up) {
+  return (new FunctionCommand([stop_angle_up]() {
+      score_upper_twice(stop_angle_up);
       return true;
   }));
 }

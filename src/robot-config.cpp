@@ -83,6 +83,7 @@ robot_specs_t robot_config = {
 TankDriveModel drive_model(
   Length::from<inch_tag>(12),
   12_V,
+  0_V,
   0.149114_VpInPs,
   0.018437_VpInPs2,
   1.088593_VpRadPs,
@@ -95,7 +96,7 @@ TankTrajectoryFollowerConfig trajectory_follower_config;
 
 TankTrajectoryFollowerConfig line_cfg = [] {
   TankTrajectoryFollowerConfig cfg;
-  cfg.q_tolerances = {{5, 1.5, 0.3, 20, 20}};
+  cfg.q_tolerances = {{5, 1.5, 0.2, 20, 20}};
   cfg.r_tolerances = {{12, 12}};
   cfg.dt = 10_ms;
   cfg.max_velocity = 0_inps;
@@ -133,8 +134,8 @@ Drive drive(drive_sys, imu);
 Pose2d right_auto_pose(18, 54, from_degrees(270));
 Pose2d left_auto_pose(18, 89, from_degrees(90));
 Pose2d curve_start(71.25, 95.0, from_degrees(0));
-// Pose2d &auto_start_pose = left_auto_pose;
-Pose2d &auto_start_pose = right_auto_pose;
+Pose2d &auto_start_pose = left_auto_pose;
+// Pose2d &auto_start_pose = right_auto_pose;
 // Pose2d &auto_start_pose = curve_start;
 
 void robot_init() {

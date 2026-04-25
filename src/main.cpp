@@ -17,6 +17,7 @@ int main() {
     comp.drivercontrol(opcontrol);
 
     comp.bStopTasksBetweenModes = true;
+    comp.bStopAllTasksBetweenModes = false;
 
     robot_init();
 }

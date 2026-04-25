@@ -181,7 +181,7 @@ void opcontrol() {
   left_motors.stop(vex::brakeType::coast);
   right_motors.stop(vex::brakeType::coast);
   wing_sol = false;
-  lift_sol = false;
+  lift_sol = true;
 
   opcontrol_normal();
 }
